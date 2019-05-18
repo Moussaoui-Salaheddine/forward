@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:forward/firehelp.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:forward/login.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -31,6 +33,12 @@ class _ProfileState extends State<Profile> {
             ),
             Container(
               child: Text(document['userbio']),
+            ),
+            Container(
+              child: RaisedButton(
+                child: Text('logout'),
+                onPressed: logout,
+              ),
             )
           ],
         ),
@@ -54,5 +62,11 @@ class _ProfileState extends State<Profile> {
         },
       ),
     );
+  }
+
+  Future<void> logout() async {
+    FirebaseAuth.instance.signOut();
+    Firebase.setUser(null);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
   }
 }
