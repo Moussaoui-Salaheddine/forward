@@ -11,11 +11,7 @@ class _MessagesState extends State<Messages> {
   Widget build(BuildContext context) {
     return Container(
       child: Center(
-        child: Column(
-          children: <Widget>[
-            
-          ],
-        ),
+        child: Text(Firebase.getUser().uid),
       ),
     );
   }

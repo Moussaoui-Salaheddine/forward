@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:forward/firehelp.dart';
+import 'package:forward/login.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -72,10 +76,32 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
-  void signup(){
-    if(_signupkey.currentState.validate())
-    {
+
+  Future<void> signup() async {
+    if (_signupkey.currentState.validate()) {
       _signupkey.currentState.save();
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: _email, password: _password)
+          .then((fireBaseUser) {
+        Firestore.instance.runTransaction((transaction) async {
+          await transaction.set(
+              Firestore.instance.collection("users").document(fireBaseUser.uid),
+              {
+                "username": this._username,
+                "usermail": this._email,
+                "userpassword": this._password,
+                "userbio": "new user default bio",
+                "userimageurl":
+                    "https://cdn1.iconfinder.com/data/icons/ninja-things-1/720/ninja-background-512.png",
+                "userisactive": true,
+              });
+              //FirebaseAuth.instance.sendSignInWithEmailLink();
+        });
+      }).catchError((e) {
+        print(e);
+      });
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
     }
   }
 }

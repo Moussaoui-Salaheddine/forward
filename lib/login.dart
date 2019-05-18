@@ -71,7 +71,7 @@ class _LoginState extends State<Login> {
   Future<void> login() async {
     if (_loginkey.currentState.validate()) {
       _loginkey.currentState.save();
-      FirebaseUser _user = await FirebaseAuth.instance
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _email, password: _password)
           .then((fireBaseUser) {
         Firebase.setUser(fireBaseUser);

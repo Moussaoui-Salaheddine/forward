@@ -4,7 +4,6 @@ import 'package:forward/Home/messages.dart';
 import 'package:forward/Home/profile.dart';
 import 'package:forward/about.dart';
 import 'package:forward/settings.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -30,6 +29,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text('Forward'),
         centerTitle: true,
+        automaticallyImplyLeading: false,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings),
