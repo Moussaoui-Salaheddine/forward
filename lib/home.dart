@@ -4,6 +4,7 @@ import 'package:forward/Home/messages.dart';
 import 'package:forward/Home/profile.dart';
 import 'package:forward/about.dart';
 import 'package:forward/settings.dart';
+import 'package:forward/tabbar/tabbar.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -11,12 +12,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<BottomNavigationBarItem> _bottomNavigationBarItems = [
-    BottomNavigationBarItem(icon: Icon(Icons.home), title: Text('home')),
-    BottomNavigationBarItem(icon: Icon(Icons.people), title: Text('contacts')),
-    BottomNavigationBarItem(icon: Icon(Icons.person), title: Text('profile')),
-  ];
-  int _index = 0;
+  int _index = 1;
   _handleTap(int newIndex) {
     setState(() {
       _index = newIndex;
@@ -32,14 +28,14 @@ class _HomeState extends State<Home> {
         automaticallyImplyLeading: false,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.more_horiz),
             onPressed: () {
               Navigator.push(
                   context, MaterialPageRoute(builder: (context) => Settings()));
             },
           ),
           IconButton(
-            icon: Icon(Icons.info),
+            icon: Icon(Icons.live_help),
             onPressed: () {
               Navigator.push(
                   context, MaterialPageRoute(builder: (context) => About()));
@@ -47,13 +43,15 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: _bottomNavigationBarItems,
-        currentIndex: _index,
-        onTap: (index) {
-          _handleTap(index);
-        },
-      ),
+      bottomNavigationBar: FancyTabBar((int nb) {
+        if (nb == 0) {
+          _handleTap(0);
+        } else if (nb == 1) {
+          _handleTap(1);
+        } else {
+          _handleTap(2);
+        }
+      }),
       body: Container(
         child: _handlePage(),
       ),
