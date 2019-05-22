@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:forward/Home/widget/gradientraisedbutton.dart';
+import 'package:forward/auth/login.dart';
+import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:forward/login.dart';
+import 'package:forward/widget/gradientraisedbutton.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -46,8 +47,10 @@ class _ProfileState extends State<Profile> {
                               : Colors.redAccent),
                       borderRadius: BorderRadius.circular(
                           MediaQuery.of(context).size.width / 8)),
-                  child: CachedNetworkImage(
-                      imageUrl: document['userimageurl'].toString()),
+                  child: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                        document['userimageurl'].toString()),
+                  ),
                 ),
               ),
               SizedBox(width: 30),
@@ -76,7 +79,7 @@ class _ProfileState extends State<Profile> {
           ),
           Container(
             margin:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height / 10),
+                EdgeInsets.only(top: MediaQuery.of(context).size.height / 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
@@ -96,14 +99,37 @@ class _ProfileState extends State<Profile> {
                           Color.fromRGBO(110, 62, 220, 1.0)
                         ],
                       ),
-                      onPressed: logout,
+                      onPressed: () {
+                        return showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text("logout"),
+                                content: Text('do you really want to logout?'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text("logout"),
+                                    onPressed: logout,
+                                  ),
+                                  FlatButton(
+                                    child: Text("Cancel"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            });
+                      },
                     )),
                 Container(
                   width: MediaQuery.of(context).size.width / 6,
                   height: MediaQuery.of(context).size.width / 8,
                   child: RaisedButton(
-                    child: Icon(Icons.create, color: Colors.black45),
-                    color: Colors.amberAccent[50],
+                    child: Icon(Icons.create,
+                        color: DynamicTheme.darkthemeEnabled
+                            ? Colors.white
+                            : Colors.black45),
                     elevation: 0,
                     onPressed: () {
                       return showDialog(
@@ -161,7 +187,7 @@ class _ProfileState extends State<Profile> {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
-            return Text('Loading..');
+            return Center(child: Text('Loading...'));
           else
             return _buildProfile(context, snapshot.data);
         },

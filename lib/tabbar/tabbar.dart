@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:forward/dynamictheme.dart';
 import 'package:forward/tabbar/tabbaritem.dart';
 import 'package:vector_math/vector_math.dart' as vector;
 
 class FancyTabBar extends StatefulWidget {
-  FancyTabBar(@required this.callbackFunction);
+  FancyTabBar(this.callbackFunction);
 
-  Function callbackFunction;
+  final Function callbackFunction;
   @override
   _FancyTabBarState createState() => _FancyTabBarState();
 }
@@ -76,10 +77,18 @@ class _FancyTabBarState extends State<FancyTabBar>
         Container(
           height: 65,
           margin: EdgeInsets.only(top: 45),
-          decoration: BoxDecoration(color: Colors.white, boxShadow: [
-            BoxShadow(
-                color: Colors.black38, offset: Offset(0, -1), blurRadius: 8)
-          ]),
+          decoration: BoxDecoration(
+              color: DynamicTheme.darkthemeEnabled
+                  ? DynamicTheme.darkthemePrimary
+                  : Colors.white,
+              boxShadow: [
+                BoxShadow(
+                    color: DynamicTheme.darkthemeEnabled
+                        ? DynamicTheme.darkthemeSecondary
+                        : Colors.black38,
+                    offset: Offset(0, -1),
+                    blurRadius: DynamicTheme.darkthemeEnabled ? 2 : 8)
+              ]),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -145,12 +154,20 @@ class _FancyTabBarState extends State<FancyTabBar>
                                   width: 70,
                                   height: 70,
                                   decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: DynamicTheme.darkthemeEnabled
+                                          ? DynamicTheme.darkthemePrimary
+                                          : Colors.white,
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                            color: Colors.black87,
-                                            blurRadius: 8)
+                                            color: DynamicTheme.darkthemeEnabled
+                                                ? DynamicTheme
+                                                    .darkthemeSecondary
+                                                : Colors.black87,
+                                            blurRadius:
+                                                DynamicTheme.darkthemeEnabled
+                                                    ? 4
+                                                    : 8)
                                       ])),
                             ),
                           )),
@@ -169,17 +186,16 @@ class _FancyTabBarState extends State<FancyTabBar>
                             shape: BoxShape.circle,
                             color: Theme.of(context).primaryColor,
                             border: Border.all(
-                                color: Colors.white,
+                                color: DynamicTheme.darkthemeEnabled
+                                    ? DynamicTheme.darkthemePrimary
+                                    : Colors.white,
                                 width: 5,
                                 style: BorderStyle.none)),
                         child: Padding(
                           padding: const EdgeInsets.all(0.0),
                           child: Opacity(
                             opacity: fabIconAlpha,
-                            child: Icon(
-                              activeIcon,
-                              color: Colors.white,
-                            ),
+                            child: Icon(activeIcon, color: Colors.white),
                           ),
                         ),
                       ),
@@ -235,7 +251,12 @@ class HalfPainter extends CustomPainter {
     path.arcTo(afterRect, vector.radians(180), vector.radians(-90), false);
     path.close();
 
-    canvas.drawPath(path, Paint()..color = Colors.white);
+    canvas.drawPath(
+        path,
+        Paint()
+          ..color = DynamicTheme.darkthemeEnabled
+              ? DynamicTheme.darkthemePrimary
+              : Colors.white);
   }
 
   @override

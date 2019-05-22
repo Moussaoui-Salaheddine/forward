@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forward/dynamictheme.dart';
 
 class RaisedGradientButton extends StatelessWidget {
   final Widget child;
@@ -24,13 +25,16 @@ class RaisedGradientButton extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: gradient,
         borderRadius: BorderRadius.circular(5),
-         boxShadow: [
-        BoxShadow(
-          color: Colors.grey[500],
-          offset: Offset(0.0, 1.5),
-          blurRadius: 1.5,
-        ),
-      ],),
+        boxShadow: [
+          BoxShadow(
+            color: DynamicTheme.darkthemeEnabled
+                ? Colors.transparent
+                : Colors.grey[500],
+            offset: Offset(0.0, 1.5),
+            blurRadius: 1.5,
+          ),
+        ],
+      ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
