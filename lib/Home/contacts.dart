@@ -14,7 +14,7 @@ class _ContactsState extends State<Contacts> {
       shape: UnderlineInputBorder(
           borderRadius: BorderRadius.circular(5),
           borderSide: BorderSide(
-              width: 5,
+              width: MediaQuery.of(context).size.height/70,
               color: document['userisactive']
                   ? Colors.greenAccent
                   : Colors.redAccent)),

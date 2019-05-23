@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:forward/dynamictheme.dart';
-import 'package:forward/widget/gradientraisedbutton.dart';
+import 'package:forward/widgets/gradientraisedbutton.dart';
 import 'login.dart';
 
 class Signup extends StatefulWidget {

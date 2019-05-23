@@ -21,16 +21,22 @@ class _SettingsState extends State<Settings> {
         body: Center(
             child: Container(
                 child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
               Container(
-                child: Switch(
-                  value: DynamicTheme.darkthemeEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      DynamicTheme.darkthemeEnabled = value;
-                    });
-                  },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text('enable dark theme: '),
+                    Switch(
+                      value: DynamicTheme.darkthemeEnabled,
+                      onChanged: (value) {
+                        setState(() {
+                          DynamicTheme.darkthemeEnabled = value;
+                        });
+                      },
+                    ),
+                  ],
                 ),
               )
             ]))),

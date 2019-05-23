@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:forward/home.dart';
-import 'package:forward/widget/gradientraisedbutton.dart';
+import 'package:forward/widgets/gradientraisedbutton.dart';
 import 'signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

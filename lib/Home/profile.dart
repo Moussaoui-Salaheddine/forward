@@ -5,7 +5,8 @@ import 'package:forward/auth/login.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:forward/widget/gradientraisedbutton.dart';
+import 'package:forward/widgets/coloredactiveindicator.dart';
+import 'package:forward/widgets/gradientraisedbutton.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -21,15 +22,7 @@ class _ProfileState extends State<Profile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Container(
-            height: MediaQuery.of(context).size.height / 150,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-              document['userisactive'] ? Colors.green : Colors.red,
-              document['userisactive'] ? Colors.greenAccent : Colors.redAccent,
-            ])),
-          ),
+          ColoredActiveIndicator(document['userisactive']),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -99,28 +92,7 @@ class _ProfileState extends State<Profile> {
                           Color.fromRGBO(110, 62, 220, 1.0)
                         ],
                       ),
-                      onPressed: () {
-                        return showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text("logout"),
-                                content: Text('do you really want to logout?'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    child: Text("logout"),
-                                    onPressed: logout,
-                                  ),
-                                  FlatButton(
-                                    child: Text("Cancel"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            });
-                      },
+                      onPressed: confirmLogout,
                     )),
                 Container(
                   width: MediaQuery.of(context).size.width / 6,
@@ -131,42 +103,7 @@ class _ProfileState extends State<Profile> {
                             ? Colors.white
                             : Colors.black45),
                     elevation: 0,
-                    onPressed: () {
-                      return showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text("change bio"),
-                              content: Form(
-                                key: _changebiokey,
-                                child: TextFormField(
-                                  validator: (input) {
-                                    if (input.length == 0) {
-                                      return 'bio cannot be empty';
-                                    }
-                                  },
-                                  onSaved: (input) {
-                                    setState(() {
-                                      _bioUpdate = input;
-                                    });
-                                  },
-                                ),
-                              ),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text("Save"),
-                                  onPressed: updatebio,
-                                ),
-                                FlatButton(
-                                  child: Text("Close"),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          });
-                    },
+                    onPressed: changeBioInput,
                   ),
                 )
               ],
@@ -202,7 +139,6 @@ class _ProfileState extends State<Profile> {
               .collection("users")
               .document(Firebase.getUser().uid),
           {"userisactive": false});
-      //FirebaseAuth.instance.sendSignInWithEmailLink();
     });
     await FirebaseAuth.instance.signOut();
     Firebase.setUser(null);
@@ -221,5 +157,65 @@ class _ProfileState extends State<Profile> {
       });
       Navigator.pop(context);
     }
+  }
+
+  Future<Widget> confirmLogout() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("logout"),
+            content: Text('do you really want to logout?'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("logout"),
+                onPressed: logout,
+              ),
+              FlatButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  Future<Widget> changeBioInput() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("change bio"),
+            content: Form(
+              key: _changebiokey,
+              child: TextFormField(
+                validator: (input) {
+                  if (input.length == 0) {
+                    return 'bio cannot be empty';
+                  }
+                },
+                onSaved: (input) {
+                  setState(() {
+                    _bioUpdate = input;
+                  });
+                },
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Save"),
+                onPressed: updatebio,
+              ),
+              FlatButton(
+                child: Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
   }
 }

@@ -27,6 +27,7 @@ class _HomeState extends State<Home> {
           ? DynamicTheme.darktheme
           : DynamicTheme.lightheme,
       child: Scaffold(
+        resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           title: Text('Forward'),
           centerTitle: true,

@@ -2,7 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
-import 'package:forward/widget/gradientraisedbutton.dart';
+import 'package:forward/widgets/coloredactiveindicator.dart';
+import 'package:forward/widgets/gradientraisedbutton.dart';
 
 class ContactProfile extends StatefulWidget {
   final DocumentSnapshot document;
@@ -22,22 +23,13 @@ class _ContactProfileState extends State<ContactProfile> {
           ? DynamicTheme.darktheme
           : DynamicTheme.lightheme,
       child: Scaffold(
+        resizeToAvoidBottomPadding: false,
         appBar: AppBar(title: Text(document['username']), centerTitle: true),
         body: Container(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Container(
-                height: MediaQuery.of(context).size.height / 150,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                  document['userisactive'] ? Colors.green : Colors.red,
-                  document['userisactive']
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
-                ])),
-              ),
+              ColoredActiveIndicator(document['userisactive']),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -107,75 +99,15 @@ class _ContactProfileState extends State<ContactProfile> {
                               Color.fromRGBO(221, 36, 118, 1.0)
                             ],
                           ),
-                          onPressed: () {
-                            return showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text("send a message"),
-                                    content: Form(
-                                      child: TextFormField(
-                                        validator: (input) {
-                                          if (input.length == 0) {
-                                            return 'message is empty';
-                                          }
-                                        },
-                                        onSaved: (input) {
-                                          setState(() {
-                                            _newMessage = input;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                        child: Text("Send"),
-                                        onPressed: () {},
-                                      ),
-                                      FlatButton(
-                                        child: Text("Cancel"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                });
-                          },
+                          onPressed: sendMessage,
                         )),
                     Container(
                       width: MediaQuery.of(context).size.width / 6,
                       height: MediaQuery.of(context).size.width / 8,
                       child: RaisedButton(
                         child: Icon(Icons.block),
-                        color: Colors.amberAccent[50],
                         elevation: 0,
-                        onPressed: () {
-                          return showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text("block"),
-                                  content: Text('do you really want to block ' +
-                                      document['username'] +
-                                      ' ?'),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text("block",
-                                          style: TextStyle(
-                                              color: Colors.redAccent)),
-                                      onPressed: () {},
-                                    ),
-                                    FlatButton(
-                                      child: Text("Cancel"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              });
-                        },
+                        onPressed: blockUser,
                       ),
                     )
                   ],
@@ -186,5 +118,76 @@ class _ContactProfileState extends State<ContactProfile> {
         ),
       ),
     );
+  }
+
+  Future<Widget> sendMessage() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Theme(
+            data: DynamicTheme.darkthemeEnabled
+                ? DynamicTheme.darktheme
+                : DynamicTheme.lightheme,
+            child: AlertDialog(
+              title: Text("send a message"),
+              content: Form(
+                child: TextFormField(
+                  validator: (input) {
+                    if (input.length == 0) {
+                      return 'message is empty';
+                    }
+                  },
+                  onSaved: (input) {
+                    setState(() {
+                      _newMessage = input;
+                    });
+                  },
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("Send"),
+                  onPressed: () {},
+                ),
+                FlatButton(
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<Widget> blockUser() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Theme(
+            data: DynamicTheme.darkthemeEnabled
+                ? DynamicTheme.darktheme
+                : DynamicTheme.lightheme,
+            child: AlertDialog(
+              title: Text("block"),
+              content: Text(
+                  'do you really want to block ' + document['username'] + ' ?'),
+              actions: <Widget>[
+                FlatButton(
+                  child:
+                      Text("block", style: TextStyle(color: Colors.redAccent)),
+                  onPressed: () {},
+                ),
+                FlatButton(
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        });
   }
 }
