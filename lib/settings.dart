@@ -29,6 +29,7 @@ class _SettingsState extends State<Settings> {
                   children: <Widget>[
                     Text('enable dark theme: '),
                     Switch(
+                      activeColor: DynamicTheme.darkthemeAccent,
                       value: DynamicTheme.darkthemeEnabled,
                       onChanged: (value) {
                         setState(() {

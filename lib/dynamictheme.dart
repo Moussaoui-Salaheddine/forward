@@ -89,6 +89,7 @@ class DynamicTheme {
     ),
     errorColor: Colors.redAccent,
     cardTheme: CardTheme(elevation: 0, color: darkthemeSecondary),
+    cardColor: darkthemeSecondary,
     buttonColor: darkthemeSecondary,
     dialogTheme: DialogTheme(
       backgroundColor: darkthemeSecondary,

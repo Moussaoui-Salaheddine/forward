@@ -16,6 +16,9 @@ class _ContactProfileState extends State<ContactProfile> {
   DocumentSnapshot document;
   String _newMessage;
   _ContactProfileState(this.document);
+  List<PopupMenuItem> _menuItems = [
+    PopupMenuItem(child: Text('block')),
+  ];
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -24,7 +27,24 @@ class _ContactProfileState extends State<ContactProfile> {
           : DynamicTheme.lightheme,
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
-        appBar: AppBar(title: Text(document['username']), centerTitle: true),
+        appBar: AppBar(
+          title: Text(document['username']),
+          centerTitle: true,
+          actions: <Widget>[
+            PopupMenuButton<Menu>(
+              icon: Icon(Icons.more_horiz),
+              onSelected: (Menu result) {
+                _handleMenuSelection(result);
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
+                    PopupMenuItem<Menu>(
+                      value: Menu.setting1,
+                      child: Text('block'),
+                    )
+                  ],
+            )
+          ],
+        ),
         body: Container(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -80,38 +100,24 @@ class _ContactProfileState extends State<ContactProfile> {
               Container(
                 margin: EdgeInsets.only(
                     top: MediaQuery.of(context).size.height / 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Container(
-                        width: MediaQuery.of(context).size.width / 2,
-                        height: MediaQuery.of(context).size.width / 8,
-                        child: RaisedGradientButton(
-                          child: Text(
-                            'send a message',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Montserrat Medium'),
-                          ),
-                          gradient: LinearGradient(
-                            colors: <Color>[
-                              Color.fromRGBO(255, 81, 47, 1.0),
-                              Color.fromRGBO(221, 36, 118, 1.0)
-                            ],
-                          ),
-                          onPressed: sendMessage,
-                        )),
-                    Container(
-                      width: MediaQuery.of(context).size.width / 6,
-                      height: MediaQuery.of(context).size.width / 8,
-                      child: RaisedButton(
-                        child: Icon(Icons.block),
-                        elevation: 0,
-                        onPressed: blockUser,
+                child: Container(
+                    width: MediaQuery.of(context).size.width / 2,
+                    height: MediaQuery.of(context).size.width / 8,
+                    child: RaisedGradientButton(
+                      child: Text(
+                        'send a message',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Montserrat Medium'),
                       ),
-                    )
-                  ],
-                ),
+                      gradient: LinearGradient(
+                        colors: <Color>[
+                          Color.fromRGBO(255, 81, 47, 1.0),
+                          Color.fromRGBO(221, 36, 118, 1.0)
+                        ],
+                      ),
+                      onPressed: sendMessage,
+                    )),
               ),
             ],
           ),
@@ -190,4 +196,12 @@ class _ContactProfileState extends State<ContactProfile> {
           );
         });
   }
+
+  void _handleMenuSelection(Menu index) {
+    if (index == Menu.setting1) {
+      blockUser();
+    }
+  }
 }
+
+enum Menu { setting1, setting2, setting3 }
