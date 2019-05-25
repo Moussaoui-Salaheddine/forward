@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forward/dynamictheme.dart';
 
 class TabItem extends StatefulWidget {
   TabItem(
@@ -89,7 +90,9 @@ class _TabItemState extends State<TabItem> {
                   alignment: Alignment(0, 0),
                   icon: Icon(
                     widget.iconData,
-                    color: Theme.of(context).primaryColor,
+                    color: DynamicTheme.darkthemeEnabled
+                        ? Colors.grey[500]
+                        : Theme.of(context).primaryColor,
                   ),
                   onPressed: () {
                     widget.callbackFunction();

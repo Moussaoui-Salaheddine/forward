@@ -79,7 +79,7 @@ class _FancyTabBarState extends State<FancyTabBar>
           margin: EdgeInsets.only(top: 45),
           decoration: BoxDecoration(
               color: DynamicTheme.darkthemeEnabled
-                  ? DynamicTheme.darkthemePrimary
+                  ? DynamicTheme.darkthemeSecondary
                   : Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -87,7 +87,7 @@ class _FancyTabBarState extends State<FancyTabBar>
                         ? DynamicTheme.darkthemeSecondary
                         : Colors.black38,
                     offset: Offset(0, -1),
-                    blurRadius: DynamicTheme.darkthemeEnabled ? 2 : 8)
+                    blurRadius: DynamicTheme.darkthemeEnabled ? 0 : 8)
               ]),
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -155,7 +155,7 @@ class _FancyTabBarState extends State<FancyTabBar>
                                   height: 70,
                                   decoration: BoxDecoration(
                                       color: DynamicTheme.darkthemeEnabled
-                                          ? DynamicTheme.darkthemePrimary
+                                          ? DynamicTheme.darkthemeSecondary
                                           : Colors.white,
                                       shape: BoxShape.circle,
                                       boxShadow: [
@@ -166,7 +166,7 @@ class _FancyTabBarState extends State<FancyTabBar>
                                                 : Colors.black87,
                                             blurRadius:
                                                 DynamicTheme.darkthemeEnabled
-                                                    ? 4
+                                                    ? 0
                                                     : 8)
                                       ])),
                             ),
@@ -184,10 +184,12 @@ class _FancyTabBarState extends State<FancyTabBar>
                       child: Container(
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Theme.of(context).primaryColor,
+                            color: DynamicTheme.darkthemeEnabled
+                                ? DynamicTheme.darkthemeBreak
+                                : Theme.of(context).primaryColor,
                             border: Border.all(
                                 color: DynamicTheme.darkthemeEnabled
-                                    ? DynamicTheme.darkthemePrimary
+                                    ? DynamicTheme.darkthemeSecondary
                                     : Colors.white,
                                 width: 5,
                                 style: BorderStyle.none)),
@@ -195,7 +197,10 @@ class _FancyTabBarState extends State<FancyTabBar>
                           padding: const EdgeInsets.all(0.0),
                           child: Opacity(
                             opacity: fabIconAlpha,
-                            child: Icon(activeIcon, color: Colors.white),
+                            child: Icon(
+                              activeIcon,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -255,7 +260,7 @@ class HalfPainter extends CustomPainter {
         path,
         Paint()
           ..color = DynamicTheme.darkthemeEnabled
-              ? DynamicTheme.darkthemePrimary
+              ? DynamicTheme.darkthemeSecondary
               : Colors.white);
   }
 

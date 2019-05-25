@@ -12,7 +12,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   int _index = 1;
   _handleTap(int newIndex) {
     setState(() {
@@ -74,4 +74,7 @@ class _HomeState extends State<Home> {
       return Profile();
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

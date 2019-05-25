@@ -13,7 +13,7 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   String _bioUpdate;
   GlobalKey<FormState> _changebiokey = GlobalKey<FormState>();
   DocumentSnapshot firestoreUser;
@@ -98,6 +98,7 @@ class _ProfileState extends State<Profile> {
                   width: MediaQuery.of(context).size.width / 6,
                   height: MediaQuery.of(context).size.width / 8,
                   child: RaisedButton(
+                    splashColor: DynamicTheme.darkthemeBreak,
                     child: Icon(Icons.create,
                         color: DynamicTheme.darkthemeEnabled
                             ? Colors.white
@@ -205,7 +206,8 @@ class _ProfileState extends State<Profile> {
             ),
             actions: <Widget>[
               FlatButton(
-                child: Text("Save"),
+                child: Text("Save",
+                    style: TextStyle(color: DynamicTheme.darkthemeBreak)),
                 onPressed: updatebio,
               ),
               FlatButton(
@@ -218,4 +220,7 @@ class _ProfileState extends State<Profile> {
           );
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

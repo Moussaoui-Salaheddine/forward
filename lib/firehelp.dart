@@ -5,7 +5,8 @@ class Firebase {
   static FirebaseUser getUser() {
     return user;
   }
+
   static void setUser(FirebaseUser fbusr) {
-     user = fbusr;
+    user = fbusr;
   }
 }

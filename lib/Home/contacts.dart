@@ -2,13 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:forward/Home/cantactprofile.dart';
+import 'package:forward/dynamictheme.dart';
 
 class Contacts extends StatefulWidget {
   @override
   _ContactsState createState() => _ContactsState();
 }
 
-class _ContactsState extends State<Contacts> {
+class _ContactsState extends State<Contacts> with AutomaticKeepAliveClientMixin{
   Widget _buildContactlist(BuildContext context, DocumentSnapshot document) {
     return Card(
       shape: UnderlineInputBorder(
@@ -19,6 +20,7 @@ class _ContactsState extends State<Contacts> {
                   ? Colors.greenAccent
                   : Colors.redAccent)),
       child: InkWell(
+        splashColor: DynamicTheme.darkthemeBreak,
         onTap: () {
           Navigator.push(
               context,
@@ -65,4 +67,7 @@ class _ContactsState extends State<Contacts> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

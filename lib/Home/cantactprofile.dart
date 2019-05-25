@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
+import 'package:forward/firehelp.dart';
 import 'package:forward/widgets/coloredactiveindicator.dart';
 import 'package:forward/widgets/gradientraisedbutton.dart';
 
@@ -12,13 +14,13 @@ class ContactProfile extends StatefulWidget {
   _ContactProfileState createState() => _ContactProfileState(document);
 }
 
-class _ContactProfileState extends State<ContactProfile> {
+class _ContactProfileState extends State<ContactProfile>
+    with AutomaticKeepAliveClientMixin {
   DocumentSnapshot document;
   String _newMessage;
   _ContactProfileState(this.document);
-  List<PopupMenuItem> _menuItems = [
-    PopupMenuItem(child: Text('block')),
-  ];
+  List<PopupMenuItem> _menuItems = [PopupMenuItem(child: Text('block'))];
+  GlobalKey<FormState> _sendMessagekey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -137,6 +139,7 @@ class _ContactProfileState extends State<ContactProfile> {
             child: AlertDialog(
               title: Text("send a message"),
               content: Form(
+                key: _sendMessagekey,
                 child: TextFormField(
                   validator: (input) {
                     if (input.length == 0) {
@@ -152,8 +155,9 @@ class _ContactProfileState extends State<ContactProfile> {
               ),
               actions: <Widget>[
                 FlatButton(
-                  child: Text("Send"),
-                  onPressed: () {},
+                  child: Text("Send",
+                      style: TextStyle(color: DynamicTheme.darkthemeBreak)),
+                  onPressed: createChat,
                 ),
                 FlatButton(
                   child: Text("Cancel"),
@@ -197,11 +201,36 @@ class _ContactProfileState extends State<ContactProfile> {
         });
   }
 
+  Future<void> createChat() async {
+    if (_sendMessagekey.currentState.validate()) {
+      _sendMessagekey.currentState.save();
+      Firestore.instance.runTransaction((transaction) async {
+        await transaction.set(
+            Firestore.instance.collection("chats").document(
+                document['useruid'].toString() +
+                    Firebase.getUser().uid.toString()),
+            {
+              "chattitle": document['username'].toString() +
+                  Firebase.getUser().uid.toString(),
+              "chatparticipants": [
+                document['useruid'].toString(),
+                Firebase.getUser().uid.toString()
+              ],
+              "chatimageurl":
+                  "https://www.neolutionesport.com/wp-content/uploads/2017/03/default-avatar-knives-ninja.png",
+            });
+      });
+    }
+  }
+
   void _handleMenuSelection(Menu index) {
     if (index == Menu.setting1) {
       blockUser();
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 enum Menu { setting1, setting2, setting3 }

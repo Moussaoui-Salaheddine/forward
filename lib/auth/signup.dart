@@ -136,6 +136,7 @@ class _SignupState extends State<Signup> {
                 "userimageurl":
                     "https://cdn1.iconfinder.com/data/icons/ninja-things-1/720/ninja-background-512.png",
                 "userisactive": true,
+                "useruid": fireBaseUser.uid.toString()
               });
           //FirebaseAuth.instance.sendSignInWithEmailLink();
         });
