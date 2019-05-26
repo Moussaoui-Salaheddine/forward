@@ -1,47 +1,31 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:forward/dynamictheme.dart';
+import 'package:forward/firehelp.dart';
 
 class Chat extends StatefulWidget {
+  DocumentSnapshot document;
+  Chat(this.document);
   @override
   State<StatefulWidget> createState() {
-    return _StateChat();
+    return _StateChat(document);
   }
 }
 
 class _StateChat extends State<Chat> {
-  List<String> _messages;
+  DocumentSnapshot document;
+  _StateChat(this.document);
 
+  GlobalKey<FormState> _sendMessagekey = GlobalKey<FormState>();
   TextEditingController _textFieldController = new TextEditingController();
-
   ScrollController scrollController;
+  String _textinput;
 
   @override
   void initState() {
-    _messages = List<String>();
-    _messages.add("Hey what's up");
-    _messages.add("hey");
-    _messages.add("how are you");
-    _messages.add("fine thx how ab u");
-
     scrollController = ScrollController();
-
     super.initState();
-  }
-
-  void handleSendingMessage() {
-    setState(() {
-      var text = _textFieldController.value.text.toString();
-      if (text.isNotEmpty) {
-        _textFieldController.clear();
-        _messages.add(text);
-      }
-    });
-    Future.delayed(Duration(milliseconds: 50), () {
-      scrollController.animateTo(scrollController.position.maxScrollExtent,
-          curve: Curves.easeOut, duration: Duration(milliseconds: 400));
-    });
   }
 
   Widget build(BuildContext context) {
@@ -51,39 +35,33 @@ class _StateChat extends State<Chat> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Expanded(
-          child: TextField(
-            controller: _textFieldController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[500], width: 0.5),
-                  borderRadius: BorderRadius.circular(30.0)),
-              disabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[500], width: 0.5),
-                  borderRadius: BorderRadius.circular(30.0)),
-              enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[500], width: 0.5),
-                  borderRadius: BorderRadius.circular(30.0)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey[500], width: 0.5),
-                  borderRadius: BorderRadius.circular(30.0)),
-              hintText: 'Aa',
-              hintStyle: TextStyle(color: Colors.grey[500]),
-              prefixIcon: IconButton(
-                icon: Icon(
-                  Icons.camera_alt,
+          child: Form(
+            key: _sendMessagekey,
+            child: TextFormField(
+              controller: _textFieldController,
+              decoration: InputDecoration(
+                hintText: 'Aa',
+                prefixIcon: IconButton(
+                  splashColor: Colors.transparent,
+                  icon: Icon(
+                    Icons.apps,
+                  ),
+                  onPressed: () {},
                 ),
-                onPressed: () {},
-              ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  Icons.send,
+                suffixIcon: IconButton(
+                  splashColor: Colors.transparent,
+                  icon: Icon(
+                    Icons.send,
+                  ),
+                  onPressed: handleSendingMessage,
                 ),
-                onPressed: handleSendingMessage,
               ),
+              onSaved: (input) {
+                setState(() {
+                  _textinput = input;
+                });
+              },
             ),
-            onSubmitted: (text) {
-              handleSendingMessage();
-            },
           ),
         ),
       ],
@@ -94,42 +72,89 @@ class _StateChat extends State<Chat> {
             : DynamicTheme.lightheme,
         child: Scaffold(
           resizeToAvoidBottomPadding: true,
-          appBar: AppBar(title: Text('chat name'), centerTitle: true),
+          appBar: AppBar(title: Text(document['chattitle']), centerTitle: true),
           body: Container(
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: _messages.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index % 2 == 0) {
-                        return getSentMessageLayout(index);
-                      } else {
-                        return getReceivedMessageLayout(index);
-                      }
-                    },
-                  ),
-                ),
-                Divider(
-                  height: 2.0,
-                ),
-                Container(
-                  child: textinput,
-                )
-              ],
-            ),
+            margin:
+                EdgeInsets.only(top: MediaQuery.of(context).size.width / 20),
+            child: StreamBuilder<QuerySnapshot>(
+                stream: Firestore.instance
+                    .collection("chats")
+                    .document(document.documentID)
+                    .collection("message")
+                    .orderBy("messagetimestamp", descending: false)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  return Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: ListView.builder(
+                          controller: scrollController,
+                          itemCount: snapshot.data.documents.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (snapshot
+                                    .data.documents[index]['messagesenderid']
+                                    .toString() ==
+                                Firebase.getUser().uid.toString())
+                              return getSentMessageLayout(snapshot
+                                  .data.documents[index]['messagetext']
+                                  .toString());
+                            return getReceivedMessageLayout(snapshot
+                                .data.documents[index]['messagetext']
+                                .toString());
+                          },
+                        ),
+                      ),
+                      Divider(
+                        height: 2.0,
+                      ),
+                      Container(
+                        child: textinput,
+                      )
+                    ],
+                  );
+                }),
           ),
         ));
   }
 
-  Widget getSentMessageLayout(int index) {
+  Future<void> handleSendingMessage() async {
+    _sendMessagekey.currentState.save();
+    setState(() {
+      var text = _textFieldController.value.text.toString();
+      if (text.isNotEmpty) {
+        _textFieldController.clear();
+      }
+    });
+
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.set(
+          Firestore.instance
+              .collection("chats")
+              .document(document.documentID)
+              .collection("message")
+              .document(),
+          {
+            "messagereceiverid": "",
+            "messagesenderid": Firebase.getUser().uid.toString(),
+            "messagetext": _textinput,
+            "messagetimestamp": DateTime.now(),
+          });
+    });
+
+    Future.delayed(Duration(milliseconds: 50), () {
+      scrollController.animateTo(scrollController.position.maxScrollExtent,
+          curve: Curves.easeOut, duration: Duration(milliseconds: 400));
+    });
+  }
+
+  Widget getSentMessageLayout(String message) {
     return Container(
+      margin: EdgeInsets.only(top: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           Card(
+            color: DynamicTheme.darkthemeBreak,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(40.0),
@@ -143,8 +168,8 @@ class _StateChat extends State<Chat> {
                 maxWidth: 200.0,
               ),
               child: Text(
-                _messages[index],
-                style: TextStyle(color: Colors.grey[200]),
+                message,
+                style: TextStyle(fontFamily: 'Montserrat Medium '),
               ),
             ),
           ),
@@ -153,7 +178,7 @@ class _StateChat extends State<Chat> {
     );
   }
 
-  Widget getReceivedMessageLayout(int index) {
+  Widget getReceivedMessageLayout(String message) {
     return Container(
       margin: EdgeInsets.only(top: 10, left: 10),
       child: Row(
@@ -176,7 +201,10 @@ class _StateChat extends State<Chat> {
                 maxWidth: 200.0,
               ),
               margin: EdgeInsets.all(10),
-              child: Text(_messages[index]),
+              child: Text(
+                message,
+                style: TextStyle(fontFamily: 'Montserrat Medium'),
+              ),
             ),
           ),
         ],

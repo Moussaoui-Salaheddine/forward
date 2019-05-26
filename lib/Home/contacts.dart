@@ -3,19 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:forward/Home/cantactprofile.dart';
 import 'package:forward/dynamictheme.dart';
+import 'package:forward/firehelp.dart';
 
 class Contacts extends StatefulWidget {
   @override
   _ContactsState createState() => _ContactsState();
 }
 
-class _ContactsState extends State<Contacts> with AutomaticKeepAliveClientMixin{
+class _ContactsState extends State<Contacts>
+    with AutomaticKeepAliveClientMixin {
   Widget _buildContactlist(BuildContext context, DocumentSnapshot document) {
+    if (document['useruid'].toString() == Firebase.getUser().uid.toString())
+      return Container();
     return Card(
       shape: UnderlineInputBorder(
           borderRadius: BorderRadius.circular(5),
           borderSide: BorderSide(
-              width: MediaQuery.of(context).size.height/70,
+              width: MediaQuery.of(context).size.height / 70,
               color: document['userisactive']
                   ? Colors.greenAccent
                   : Colors.redAccent)),
@@ -57,6 +61,7 @@ class _ContactsState extends State<Contacts> with AutomaticKeepAliveClientMixin{
                 EdgeInsets.only(top: MediaQuery.of(context).size.height / 20),
             child: GridView.builder(
               itemCount: snapshot.data.documents.length,
+              addAutomaticKeepAlives: true,
               gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
               itemBuilder: (context, index) =>

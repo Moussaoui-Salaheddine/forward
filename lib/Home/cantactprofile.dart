@@ -210,14 +210,26 @@ class _ContactProfileState extends State<ContactProfile>
                 document['useruid'].toString() +
                     Firebase.getUser().uid.toString()),
             {
-              "chattitle": document['username'].toString() +
-                  Firebase.getUser().uid.toString(),
+              "chattitle": document['username'].toString(),
               "chatparticipants": [
                 document['useruid'].toString(),
                 Firebase.getUser().uid.toString()
               ],
               "chatimageurl":
                   "https://www.neolutionesport.com/wp-content/uploads/2017/03/default-avatar-knives-ninja.png",
+            });
+        await transaction.set(
+            Firestore.instance
+                .collection("chats")
+                .document(document['useruid'].toString() +
+                    Firebase.getUser().uid.toString())
+                .collection("message")
+                .document(),
+            {
+              "messagereceiverid": document['useruid'].toString(),
+              "messagesenderid": Firebase.getUser().uid.toString(),
+              "messagetext": _newMessage,
+              "messagetimestamp": DateTime.now(),
             });
       });
     }

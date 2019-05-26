@@ -18,7 +18,7 @@ class _MessagesState extends State<Messages>
             splashColor: DynamicTheme.darkthemeBreak,
             onTap: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Chat()));
+                  context, MaterialPageRoute(builder: (context) => Chat(document)));
             },
             child: Row(
               children: <Widget>[
