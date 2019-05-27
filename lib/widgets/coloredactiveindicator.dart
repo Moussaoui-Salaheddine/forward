@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ColoredActiveIndicator extends StatefulWidget {
-  bool _active;
+  final bool _active;
   ColoredActiveIndicator(this._active);
   @override
   _ColoredActiveIndicatorState createState() =>

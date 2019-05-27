@@ -17,8 +17,8 @@ class _MessagesState extends State<Messages>
         child: InkWell(
             splashColor: DynamicTheme.darkthemeBreak,
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Chat(document)));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => Chat(document)));
             },
             child: Row(
               children: <Widget>[

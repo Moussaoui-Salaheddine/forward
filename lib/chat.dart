@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 
 class Chat extends StatefulWidget {
-  DocumentSnapshot document;
+  final DocumentSnapshot document;
   Chat(this.document);
   @override
   State<StatefulWidget> createState() {
@@ -84,34 +85,38 @@ class _StateChat extends State<Chat> {
                     .orderBy("messagetimestamp", descending: false)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  return Column(
-                    children: <Widget>[
-                      Expanded(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          itemCount: snapshot.data.documents.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (snapshot
-                                    .data.documents[index]['messagesenderid']
-                                    .toString() ==
-                                Firebase.getUser().uid.toString())
-                              return getSentMessageLayout(snapshot
+                  if (!snapshot.hasData) {
+                    return Center(child: Text('Loading...'));
+                  } else {
+                    return Column(
+                      children: <Widget>[
+                        Expanded(
+                          child: ListView.builder(
+                            controller: scrollController,
+                            itemCount: snapshot.data.documents.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              if (snapshot
+                                      .data.documents[index]['messagesenderid']
+                                      .toString() ==
+                                  Firebase.getUser().uid.toString())
+                                return getSentMessageLayout(snapshot
+                                    .data.documents[index]['messagetext']
+                                    .toString());
+                              return getReceivedMessageLayout(snapshot
                                   .data.documents[index]['messagetext']
                                   .toString());
-                            return getReceivedMessageLayout(snapshot
-                                .data.documents[index]['messagetext']
-                                .toString());
-                          },
+                            },
+                          ),
                         ),
-                      ),
-                      Divider(
-                        height: 2.0,
-                      ),
-                      Container(
-                        child: textinput,
-                      )
-                    ],
-                  );
+                        Divider(
+                          height: 2.0,
+                        ),
+                        Container(
+                          child: textinput,
+                        )
+                      ],
+                    );
+                  }
                 }),
           ),
         ));
@@ -148,66 +153,84 @@ class _StateChat extends State<Chat> {
   }
 
   Widget getSentMessageLayout(String message) {
-    return Container(
-      margin: EdgeInsets.only(top: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Card(
-            color: DynamicTheme.darkthemeBreak,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40.0),
-                    bottomRight: Radius.circular(0),
-                    topRight: Radius.circular(40.0),
-                    topLeft: Radius.circular(40.0))),
-            margin: EdgeInsets.only(right: 10),
-            child: Container(
-              margin: EdgeInsets.all(10),
-              constraints: BoxConstraints(
-                maxWidth: 200.0,
-              ),
-              child: Text(
-                message,
-                style: TextStyle(fontFamily: 'Montserrat Medium '),
+    return Theme(
+      data: DynamicTheme.darkthemeEnabled
+          ? DynamicTheme.darktheme
+          : DynamicTheme.lightheme,
+      child: Container(
+        margin: EdgeInsets.only(top: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Card(
+              elevation: 0,
+              color: DynamicTheme.darkthemeBreak,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(40.0),
+                      bottomRight: Radius.circular(0),
+                      topRight: Radius.circular(40.0),
+                      topLeft: Radius.circular(40.0))),
+              margin: EdgeInsets.only(right: 10),
+              child: Container(
+                margin: EdgeInsets.all(7),
+                constraints: BoxConstraints(
+                  maxWidth: 200.0,
+                ),
+                child: Text(
+                  message,
+                  style: TextStyle(
+                      fontFamily: 'Montserrat Medium', color: Colors.white),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget getReceivedMessageLayout(String message) {
-    return Container(
-      margin: EdgeInsets.only(top: 10, left: 10),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 35,
-            height: 35,
-            child: CircleAvatar(),
-          ),
-          Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(0),
-                    bottomRight: Radius.circular(40.0),
-                    topRight: Radius.circular(40.0),
-                    topLeft: Radius.circular(40.0))),
-            margin: EdgeInsets.only(left: 10),
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: 200.0,
-              ),
-              margin: EdgeInsets.all(10),
-              child: Text(
-                message,
-                style: TextStyle(fontFamily: 'Montserrat Medium'),
+    return Theme(
+      data: DynamicTheme.darkthemeEnabled
+          ? DynamicTheme.darktheme
+          : DynamicTheme.lightheme,
+      child: Container(
+        margin: EdgeInsets.only(top: 15, left: 10),
+        child: Row(
+          children: <Widget>[
+            Container(
+              child: CircleAvatar(
+                maxRadius: 18,
+                backgroundImage:
+                    CachedNetworkImageProvider(document['chatimageurl']),
               ),
             ),
-          ),
-        ],
+            Card(
+              elevation: 0,
+              color: DynamicTheme.darkthemeEnabled
+                  ? DynamicTheme.darkthemeSecondary
+                  : Colors.grey[350],
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                      topLeft: Radius.circular(20.0))),
+              margin: EdgeInsets.only(left: 10),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: 200.0,
+                ),
+                margin: EdgeInsets.all(7),
+                child: Text(
+                  message,
+                  style: TextStyle(fontFamily: 'Montserrat Medium'),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

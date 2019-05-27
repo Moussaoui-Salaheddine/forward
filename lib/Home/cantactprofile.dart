@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
@@ -19,7 +18,6 @@ class _ContactProfileState extends State<ContactProfile>
   DocumentSnapshot document;
   String _newMessage;
   _ContactProfileState(this.document);
-  List<PopupMenuItem> _menuItems = [PopupMenuItem(child: Text('block'))];
   GlobalKey<FormState> _sendMessagekey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -210,7 +208,7 @@ class _ContactProfileState extends State<ContactProfile>
                 document['useruid'].toString() +
                     Firebase.getUser().uid.toString()),
             {
-              "chattitle": document['username'].toString(),
+              "chattitle": document['username'].toString() + ', ',
               "chatparticipants": [
                 document['useruid'].toString(),
                 Firebase.getUser().uid.toString()
@@ -232,6 +230,7 @@ class _ContactProfileState extends State<ContactProfile>
               "messagetimestamp": DateTime.now(),
             });
       });
+      Navigator.pop(context);
     }
   }
 

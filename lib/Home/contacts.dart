@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:forward/Home/cantactprofile.dart';
+import 'package:forward/Home/profile.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 
@@ -13,8 +14,6 @@ class Contacts extends StatefulWidget {
 class _ContactsState extends State<Contacts>
     with AutomaticKeepAliveClientMixin {
   Widget _buildContactlist(BuildContext context, DocumentSnapshot document) {
-    if (document['useruid'].toString() == Firebase.getUser().uid.toString())
-      return Container();
     return Card(
       shape: UnderlineInputBorder(
           borderRadius: BorderRadius.circular(5),
@@ -26,10 +25,29 @@ class _ContactsState extends State<Contacts>
       child: InkWell(
         splashColor: DynamicTheme.darkthemeBreak,
         onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ContactProfile(document)));
+          if (document['useruid'].toString() ==
+              Firebase.getUser().uid.toString()) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Theme(
+                          data: DynamicTheme.darkthemeEnabled
+                              ? DynamicTheme.darktheme
+                              : DynamicTheme.lightheme,
+                          child: Scaffold(
+                            appBar: AppBar(
+                              title: Text(document['username']),
+                              centerTitle: true,
+                            ),
+                            body: Profile(),
+                          ),
+                        )));
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ContactProfile(document)));
+          }
         },
         child: Center(
           child: Column(
@@ -64,8 +82,10 @@ class _ContactsState extends State<Contacts>
               addAutomaticKeepAlives: true,
               gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-              itemBuilder: (context, index) =>
-                  _buildContactlist(context, snapshot.data.documents[index]),
+              itemBuilder: (context, index) {
+                return _buildContactlist(
+                    context, snapshot.data.documents[index]);
+              },
             ),
           );
         },
