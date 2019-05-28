@@ -8,16 +8,18 @@ import 'package:forward/widgets/gradientraisedbutton.dart';
 
 class ContactProfile extends StatefulWidget {
   final DocumentSnapshot document;
-  ContactProfile(this.document);
+  final DocumentSnapshot userdocument;
+  ContactProfile(this.document, this.userdocument);
   @override
-  _ContactProfileState createState() => _ContactProfileState(document);
+  _ContactProfileState createState() => _ContactProfileState(document, userdocument);
 }
 
 class _ContactProfileState extends State<ContactProfile>
     with AutomaticKeepAliveClientMixin {
   DocumentSnapshot document;
+  DocumentSnapshot userdocument;
   String _newMessage;
-  _ContactProfileState(this.document);
+  _ContactProfileState(this.document, this.userdocument);
   GlobalKey<FormState> _sendMessagekey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -208,7 +210,7 @@ class _ContactProfileState extends State<ContactProfile>
                 document['useruid'].toString() +
                     Firebase.getUser().uid.toString()),
             {
-              "chattitle": document['username'].toString() + ', ',
+              "chattitle": document['username'].toString() + ', ' + userdocument['username'].toString(),
               "chatparticipants": [
                 document['useruid'].toString(),
                 Firebase.getUser().uid.toString()

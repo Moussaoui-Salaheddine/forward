@@ -7,12 +7,16 @@ import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 
 class Contacts extends StatefulWidget {
+  final DocumentSnapshot document;
+  Contacts(this.document);
   @override
-  _ContactsState createState() => _ContactsState();
+  _ContactsState createState() => _ContactsState(document);
 }
 
 class _ContactsState extends State<Contacts>
     with AutomaticKeepAliveClientMixin {
+  DocumentSnapshot userdocument;
+  _ContactsState(this.userdocument);
   Widget _buildContactlist(BuildContext context, DocumentSnapshot document) {
     return Card(
       shape: UnderlineInputBorder(
@@ -46,7 +50,7 @@ class _ContactsState extends State<Contacts>
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ContactProfile(document)));
+                    builder: (context) => ContactProfile(document, userdocument)));
           }
         },
         child: Center(
