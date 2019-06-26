@@ -4,6 +4,7 @@ import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:forward/home.dart';
 import 'package:forward/widgets/gradientraisedbutton.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -73,22 +74,30 @@ class _LoginState extends State<Login> {
                       Padding(
                           padding: EdgeInsets.only(
                               top: MediaQuery.of(context).size.height / 20)),
-                      Container(
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: RaisedGradientButton(
-                          child: Text(
-                            'login',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Montserrat Medium'),
-                          ),
-                          gradient: LinearGradient(
-                            colors: <Color>[
-                              Color.fromRGBO(102, 140, 255, 1.0),
-                              Color.fromRGBO(110, 62, 220, 1.0)
-                            ],
-                          ),
-                          onPressed: login,
+                      ScopedModel<Firebase>(
+                        model: Firebase(),
+                        child: ScopedModelDescendant(
+                          builder: (context, child, Firebase model) =>
+                              Container(
+                                width: MediaQuery.of(context).size.width / 2,
+                                child: RaisedGradientButton(
+                                  child: Text(
+                                    'login',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Montserrat Medium'),
+                                  ),
+                                  gradient: LinearGradient(
+                                    colors: <Color>[
+                                      Color.fromRGBO(102, 140, 255, 1.0),
+                                      Color.fromRGBO(110, 62, 220, 1.0)
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    login(model);
+                                  },
+                                ),
+                              ),
                         ),
                       ),
                       Padding(
@@ -132,13 +141,13 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future<void> login() async {
+  Future<void> login(Firebase model) async {
     if (_loginkey.currentState.validate()) {
       _loginkey.currentState.save();
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _email, password: _password)
           .then((fireBaseUser) {
-        Firebase.setUser(fireBaseUser);
+        model.setuser(fireBaseUser);
         Firestore.instance.runTransaction((transaction) async {
           await transaction.update(
               Firestore.instance.collection("users").document(fireBaseUser.uid),

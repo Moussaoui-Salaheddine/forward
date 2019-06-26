@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class Chat extends StatefulWidget {
   final DocumentSnapshot document;
@@ -35,36 +36,41 @@ class _StateChat extends State<Chat> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Expanded(
-          child: Form(
-            key: _sendMessagekey,
-            child: TextFormField(
-              controller: _textFieldController,
-              decoration: InputDecoration(
-                hintText: 'Aa',
-                prefixIcon: IconButton(
-                  splashColor: Colors.transparent,
-                  icon: Icon(
-                    Icons.apps,
-                  ),
-                  onPressed: () {},
-                ),
-                suffixIcon: IconButton(
-                  splashColor: Colors.transparent,
-                  icon: Icon(
-                    Icons.send,
-                  ),
-                  onPressed: handleSendingMessage,
-                ),
-              ),
-              onSaved: (input) {
-                setState(() {
-                  _textinput = input;
-                });
-              },
-            ),
-          ),
-        ),
+        ScopedModel<Firebase>(
+            model: Firebase(),
+            child: ScopedModelDescendant(
+                builder: (context, child, Firebase model) => Expanded(
+                      child: Form(
+                        key: _sendMessagekey,
+                        child: TextFormField(
+                          controller: _textFieldController,
+                          decoration: InputDecoration(
+                            hintText: 'Aa',
+                            prefixIcon: IconButton(
+                              splashColor: Colors.transparent,
+                              icon: Icon(
+                                Icons.apps,
+                              ),
+                              onPressed: () {},
+                            ),
+                            suffixIcon: IconButton(
+                              splashColor: Colors.transparent,
+                              icon: Icon(
+                                Icons.send,
+                              ),
+                              onPressed: () {
+                                handleSendingMessage(model);
+                              },
+                            ),
+                          ),
+                          onSaved: (input) {
+                            setState(() {
+                              _textinput = input;
+                            });
+                          },
+                        ),
+                      ),
+                    ))),
       ],
     );
     return Theme(
@@ -90,24 +96,36 @@ class _StateChat extends State<Chat> {
                   } else {
                     return Column(
                       children: <Widget>[
-                        Expanded(
-                          child: ListView.builder(
-                            controller: scrollController,
-                            itemCount: snapshot.data.documents.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              if (snapshot
-                                      .data.documents[index]['messagesenderid']
-                                      .toString() ==
-                                  Firebase.getUser().uid.toString())
-                                return getSentMessageLayout(snapshot
-                                    .data.documents[index]['messagetext']
-                                    .toString());
-                              return getReceivedMessageLayout(snapshot
-                                  .data.documents[index]['messagetext']
-                                  .toString());
-                            },
-                          ),
-                        ),
+                        ScopedModel<Firebase>(
+                            model: Firebase(),
+                            child: ScopedModelDescendant(
+                                builder: (context, child, Firebase model) =>
+                                    Expanded(
+                                      child: ListView.builder(
+                                        controller: scrollController,
+                                        itemCount:
+                                            snapshot.data.documents.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          if (snapshot
+                                                  .data
+                                                  .documents[index]
+                                                      ['messagesenderid']
+                                                  .toString() ==
+                                              model.user.uid.toString())
+                                            return getSentMessageLayout(snapshot
+                                                .data
+                                                .documents[index]['messagetext']
+                                                .toString());
+                                          return getReceivedMessageLayout(
+                                              snapshot
+                                                  .data
+                                                  .documents[index]
+                                                      ['messagetext']
+                                                  .toString());
+                                        },
+                                      ),
+                                    ))),
                         Divider(
                           height: 2.0,
                         ),
@@ -122,7 +140,7 @@ class _StateChat extends State<Chat> {
         ));
   }
 
-  Future<void> handleSendingMessage() async {
+  Future<void> handleSendingMessage(Firebase model) async {
     _sendMessagekey.currentState.save();
     setState(() {
       var text = _textFieldController.value.text.toString();
@@ -140,7 +158,7 @@ class _StateChat extends State<Chat> {
               .document(),
           {
             "messagereceiverid": "",
-            "messagesenderid": Firebase.getUser().uid.toString(),
+            "messagesenderid": model.user.uid.toString(),
             "messagetext": _textinput,
             "messagetimestamp": DateTime.now(),
           });

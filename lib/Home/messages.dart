@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:forward/chat.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class Messages extends StatefulWidget {
   @override
@@ -136,28 +137,30 @@ class _MessagesState extends State<Messages>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: StreamBuilder<QuerySnapshot>(
-            stream: Firestore.instance
-                .collection("chats")
-                .where('chatparticipants',
-                    arrayContains: Firebase.getUser().uid.toString())
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: Text("no chats"));
-              } else {
-                return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, position) {
-                    return _buildChatLayout(
-                      context,
-                      snapshot.data.documents[position],
-                    );
-                  },
-                );
-              }
-            }));
+    return ScopedModelDescendant(
+      builder: (context, child, Firebase model) => Container(
+          child: StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance
+                  .collection("chats")
+                  .where('chatparticipants',
+                      arrayContains: model.user.uid.toString())
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: Text("no chats"));
+                } else {
+                  return ListView.builder(
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, position) {
+                      return _buildChatLayout(
+                        context,
+                        snapshot.data.documents[position],
+                      );
+                    },
+                  );
+                }
+              })),
+    );
   }
 
   @override

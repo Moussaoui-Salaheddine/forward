@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:forward/auth/login.dart';
 import 'package:forward/firehelp.dart';
 import 'package:forward/home.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 main() {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
@@ -35,25 +36,26 @@ class UserStateHandler extends StatefulWidget {
 class _UserStateHandlerState extends State<UserStateHandler> {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<FirebaseUser>(
-      stream: FirebaseAuth.instance.onAuthStateChanged,
-      builder: (context, snapShot) {
-        if (snapShot.connectionState == ConnectionState.waiting)
-          return Material(
-            child: Center(child: Text('Loading...')),
-          );
-        else if (snapShot.connectionState == ConnectionState.none ||
-            snapShot.connectionState == ConnectionState.done)
-          return Material(
-            child: Center(child: Text('No Internet Connection !')),
-          );
-        else if (!snapShot.hasData) {
-          return Login();
-        } else {
-          Firebase.setUser(snapShot.data);
-          return Home();
-        }
-      },
+    return ScopedModel<Firebase>(
+      model: Firebase(),
+      child: ScopedModelDescendant(
+        builder: (context, child, Firebase model) =>
+            StreamBuilder<FirebaseUser>(
+              stream: FirebaseAuth.instance.onAuthStateChanged,
+              builder: (context, snapShot) {
+                if (snapShot.connectionState == ConnectionState.waiting)
+                  return Material(
+                    child: Center(child: Text('Loading...')),
+                  );
+                else if (!snapShot.hasData) {
+                  return Login();
+                } else {
+                  model.setuser(snapShot.data);
+                  return Home();
+                }
+              },
+            ),
+      ),
     );
   }
 }

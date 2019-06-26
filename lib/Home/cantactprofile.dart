@@ -5,6 +5,7 @@ import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:forward/widgets/coloredactiveindicator.dart';
 import 'package:forward/widgets/gradientraisedbutton.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class ContactProfile extends StatefulWidget {
   final DocumentSnapshot document;
@@ -152,10 +153,18 @@ class _ContactProfileState extends State<ContactProfile>
                 ),
               ),
               actions: <Widget>[
-                FlatButton(
-                  child: Text("Send",
-                      style: TextStyle(color: DynamicTheme.darkthemeBreak)),
-                  onPressed: createChat,
+                ScopedModel<Firebase>(
+                  model: Firebase(),
+                  child: ScopedModelDescendant(
+                    builder: (context, child, Firebase model) => FlatButton(
+                          child: Text("Send",
+                              style: TextStyle(
+                                  color: DynamicTheme.darkthemeBreak)),
+                          onPressed: () {
+                            createChat(model);
+                          },
+                        ),
+                  ),
                 ),
                 FlatButton(
                   child: Text("Cancel"),
@@ -199,19 +208,18 @@ class _ContactProfileState extends State<ContactProfile>
         });
   }
 
-  Future<void> createChat() async {
+  Future<void> createChat(Firebase model) async {
     if (_sendMessagekey.currentState.validate()) {
       _sendMessagekey.currentState.save();
       Firestore.instance.runTransaction((transaction) async {
         await transaction.set(
             Firestore.instance.collection("chats").document(
-                document['useruid'].toString() +
-                    Firebase.getUser().uid.toString()),
+                document['useruid'].toString() + model.user.uid.toString()),
             {
               "chattitle": document['username'].toString() + ', ',
               "chatparticipants": [
                 document['useruid'].toString(),
-                Firebase.getUser().uid.toString()
+                model.user.uid.toString()
               ],
               "chatimageurl":
                   "https://www.neolutionesport.com/wp-content/uploads/2017/03/default-avatar-knives-ninja.png",
@@ -219,13 +227,13 @@ class _ContactProfileState extends State<ContactProfile>
         await transaction.set(
             Firestore.instance
                 .collection("chats")
-                .document(document['useruid'].toString() +
-                    Firebase.getUser().uid.toString())
+                .document(
+                    document['useruid'].toString() + model.user.uid.toString())
                 .collection("message")
                 .document(),
             {
               "messagereceiverid": document['useruid'].toString(),
-              "messagesenderid": Firebase.getUser().uid.toString(),
+              "messagesenderid": model.user.uid.toString(),
               "messagetext": _newMessage,
               "messagetimestamp": DateTime.now(),
             });

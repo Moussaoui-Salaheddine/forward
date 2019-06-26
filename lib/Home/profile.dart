@@ -7,6 +7,7 @@ import 'package:forward/firehelp.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:forward/widgets/coloredactiveindicator.dart';
 import 'package:forward/widgets/gradientraisedbutton.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -17,170 +18,143 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
   String _bioUpdate;
   GlobalKey<FormState> _changebiokey = GlobalKey<FormState>();
   DocumentSnapshot firestoreUser;
-  Widget _buildProfile(BuildContext context, DocumentSnapshot document) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          ColoredActiveIndicator(document['userisactive']),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 20),
-                width: MediaQuery.of(context).size.width / 4,
-                height: MediaQuery.of(context).size.width / 4,
-                child: Card(
-                  elevation: 7,
-                  shape: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: document['userisactive']
-                              ? Colors.greenAccent
-                              : Colors.redAccent),
-                      borderRadius: BorderRadius.circular(
-                          MediaQuery.of(context).size.width / 8)),
-                  child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(
-                        document['userimageurl'].toString()),
-                  ),
-                ),
-              ),
-              SizedBox(width: 30),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+
+  @override
+  Widget build(BuildContext context) {
+    return ScopedModelDescendant(
+        builder: (context, child, Firebase model) => Container(
+                child: Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    child: Text(
-                      document['username'].toString(),
-                      style: TextStyle(fontFamily: 'Montserrat Medium'),
-                    ),
+                  ColoredActiveIndicator(model.userisactive),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.height / 20),
+                        width: MediaQuery.of(context).size.width / 4,
+                        height: MediaQuery.of(context).size.width / 4,
+                        child: Card(
+                          elevation: 7,
+                          shape: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: model.userisactive
+                                      ? Colors.greenAccent
+                                      : Colors.redAccent),
+                              borderRadius: BorderRadius.circular(
+                                  MediaQuery.of(context).size.width / 8)),
+                          child: CircleAvatar(
+                            backgroundImage: CachedNetworkImageProvider(
+                                model.userimageurl.toString()),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 30),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            child: Text(
+                              model.username.toString(),
+                              style: TextStyle(fontFamily: 'Montserrat Medium'),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              model.usermail.toString(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   Container(
-                    child: Text(
-                      document['usermail'].toString(),
+                    margin: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height / 20),
+                    child: Text(model.userbio.toString()),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height / 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Container(
+                            width: MediaQuery.of(context).size.width / 2,
+                            height: MediaQuery.of(context).size.width / 8,
+                            child: RaisedGradientButton(
+                              child: Text('logout',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Montserrat Medium')),
+                              gradient: LinearGradient(
+                                colors: <Color>[
+                                  Color.fromRGBO(102, 140, 255, 1.0),
+                                  Color.fromRGBO(110, 62, 220, 1.0)
+                                ],
+                              ),
+                              onPressed: confirmLogout,
+                            )),
+                        Container(
+                          width: MediaQuery.of(context).size.width / 6,
+                          height: MediaQuery.of(context).size.width / 8,
+                          child: RaisedButton(
+                            splashColor: DynamicTheme.darkthemeBreak,
+                            child: Icon(Icons.create,
+                                color: DynamicTheme.darkthemeEnabled
+                                    ? Colors.white
+                                    : Colors.black45),
+                            elevation: 0,
+                            onPressed: changeBioInput,
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          Container(
-            margin:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height / 20),
-            child: Text(document['userbio'].toString()),
-          ),
-          Container(
-            margin:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height / 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Container(
-                    width: MediaQuery.of(context).size.width / 2,
-                    height: MediaQuery.of(context).size.width / 8,
-                    child: RaisedGradientButton(
-                      child: Text(
-                        'logout',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Montserrat Medium'),
-                      ),
-                      gradient: LinearGradient(
-                        colors: <Color>[
-                          Color.fromRGBO(102, 140, 255, 1.0),
-                          Color.fromRGBO(110, 62, 220, 1.0)
-                        ],
-                      ),
-                      onPressed: confirmLogout,
-                    )),
-                Container(
-                  width: MediaQuery.of(context).size.width / 6,
-                  height: MediaQuery.of(context).size.width / 8,
-                  child: RaisedButton(
-                    splashColor: DynamicTheme.darkthemeBreak,
-                    child: Icon(Icons.create,
-                        color: DynamicTheme.darkthemeEnabled
-                            ? Colors.white
-                            : Colors.black45),
-                    elevation: 0,
-                    onPressed: changeBioInput,
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: StreamBuilder<DocumentSnapshot>(
-        stream: Firestore.instance
-            .collection('users')
-            .document(Firebase.getUser().uid.toString())
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return Center(child: Text('Loading...'));
-          else
-            return _buildProfile(context, snapshot.data);
-        },
-      ),
-    );
-  }
-
-  Future<void> logout() async {
-    await Firestore.instance.runTransaction((transaction) async {
-      await transaction.update(
-          Firestore.instance
-              .collection("users")
-              .document(Firebase.getUser().uid),
-          {"userisactive": false});
-    });
-    await FirebaseAuth.instance.signOut();
-    Firebase.setUser(null);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
-  }
-
-  Future<void> updatebio() async {
-    if (_changebiokey.currentState.validate()) {
-      _changebiokey.currentState.save();
-      await Firestore.instance.runTransaction((transaction) async {
-        await transaction.update(
-            Firestore.instance
-                .collection("users")
-                .document(Firebase.getUser().uid),
-            {"userbio": _bioUpdate});
-      });
-      Navigator.pop(context);
-    }
+            )));
   }
 
   Future<Widget> confirmLogout() async {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text("logout"),
-            content: Text('do you really want to logout?'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("logout"),
-                onPressed: logout,
-              ),
-              FlatButton(
-                child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
+          return ScopedModelDescendant(
+                  builder: (context, child, Firebase model) => AlertDialog(
+                        title: Text("logout"),
+                        content: Text('do you really want to logout?'),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("logout"),
+                            onPressed: () async {
+                              await Firestore.instance
+                                  .runTransaction((transaction) async {
+                                await transaction.update(
+                                    Firestore.instance
+                                        .collection("users")
+                                        .document(model.user.uid.toString()),
+                                    {"userisactive": false});
+                              });
+                              await FirebaseAuth.instance.signOut();
+                              // Firebase.setUser(null);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Login()));
+                            },
+                          ),
+                          FlatButton(
+                            child: Text("Cancel"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ));
+      });
   }
 
   Future<Widget> changeBioInput() async {
@@ -205,11 +179,27 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
               ),
             ),
             actions: <Widget>[
-              FlatButton(
-                child: Text("Save",
-                    style: TextStyle(color: DynamicTheme.darkthemeBreak)),
-                onPressed: updatebio,
-              ),
+              ScopedModel<Firebase>(
+                  model: Firebase(),
+                  child: ScopedModelDescendant(
+                      builder: (context, child, Firebase model) => FlatButton(
+                          child: Text("Save",
+                              style: TextStyle(
+                                  color: DynamicTheme.darkthemeBreak)),
+                          onPressed: () async {
+                            if (_changebiokey.currentState.validate()) {
+                              _changebiokey.currentState.save();
+                              await Firestore.instance
+                                  .runTransaction((transaction) async {
+                                await transaction.update(
+                                    Firestore.instance
+                                        .collection("users")
+                                        .document(model.user.uid),
+                                    {"userbio": _bioUpdate});
+                              });
+                              Navigator.pop(context);
+                            }
+                          }))),
               FlatButton(
                 child: Text("Close"),
                 onPressed: () {
