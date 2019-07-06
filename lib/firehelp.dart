@@ -53,6 +53,7 @@ class Firebase {
     _userisactive = userisactive;
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   void setuser(FirebaseUser user) async {
     _user = user;
@@ -66,6 +67,8 @@ class Firebase {
       _userbio = document.data['userbio'];
     });
   }
+=======
+>>>>>>> parent of 0de1103... 0.0.3 beta
 =======
 >>>>>>> parent of 0de1103... 0.0.3 beta
 }
