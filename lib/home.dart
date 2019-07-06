@@ -30,6 +30,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
           : DynamicTheme.lightheme,
       child: Scaffold(
           resizeToAvoidBottomPadding: false,
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             title: Text('Forward'),
             centerTitle: true,

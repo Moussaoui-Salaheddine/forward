@@ -9,7 +9,7 @@ class DynamicTheme {
   static final ThemeData lightheme = ThemeData(
     primarySwatch: Colors.indigo,
     primaryColor: Colors.indigo,
-    accentColor: Colors.indigo,
+    accentColor: darkthemeAccent,
     brightness: Brightness.light,
     accentColorBrightness: Brightness.light,
     primaryColorBrightness: Brightness.light,

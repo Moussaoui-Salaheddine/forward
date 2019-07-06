@@ -173,7 +173,7 @@ class _StateChat extends State<Chat> {
                       topLeft: Radius.circular(40.0))),
               margin: EdgeInsets.only(right: 10),
               child: Container(
-                margin: EdgeInsets.all(7),
+                margin: EdgeInsets.all(10),
                 constraints: BoxConstraints(
                   maxWidth: 200.0,
                 ),
@@ -222,7 +222,7 @@ class _StateChat extends State<Chat> {
                 constraints: BoxConstraints(
                   maxWidth: 200.0,
                 ),
-                margin: EdgeInsets.all(7),
+                margin: EdgeInsets.all(10),
                 child: Text(
                   message,
                   style: TextStyle(fontFamily: 'Montserrat Medium'),
