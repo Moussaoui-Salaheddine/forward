@@ -4,10 +4,15 @@ import 'package:forward/auth/login.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter/material.dart';
 
+<<<<<<< HEAD
 class Firebase extends Model {
   FirebaseUser _user;
   String _username, _usermail, _userimageurl, _userpassword, _userbio, _useruid;
   bool _userisactive;
+=======
+class Firebase {
+  static FirebaseUser user;
+>>>>>>> parent of 0de1103... 0.0.3 beta
 
   DocumentSnapshot document;
 
@@ -47,6 +52,7 @@ class Firebase extends Model {
   void setuserisactive(bool userisactive) {
     _userisactive = userisactive;
   }
+<<<<<<< HEAD
 
   void setuser(FirebaseUser user) async {
     _user = user;
@@ -60,4 +66,6 @@ class Firebase extends Model {
       _userbio = document.data['userbio'];
     });
   }
+=======
+>>>>>>> parent of 0de1103... 0.0.3 beta
 }

@@ -14,6 +14,7 @@ class Contacts extends StatefulWidget {
 class _ContactsState extends State<Contacts>
     with AutomaticKeepAliveClientMixin {
   Widget _buildContactlist(BuildContext context, DocumentSnapshot document) {
+<<<<<<< HEAD
     return ScopedModelDescendant(
       builder: (context, child, Firebase model) => Card(
             shape: UnderlineInputBorder(
@@ -48,6 +49,51 @@ class _ContactsState extends State<Contacts>
                         style: TextStyle(fontFamily: 'Montserrat Regular')),
                   ],
                 ),
+=======
+    return Card(
+      shape: UnderlineInputBorder(
+          borderRadius: BorderRadius.circular(5),
+          borderSide: BorderSide(
+              width: MediaQuery.of(context).size.height / 70,
+              color: document['userisactive']
+                  ? Colors.greenAccent
+                  : Colors.redAccent)),
+      child: InkWell(
+        splashColor: DynamicTheme.darkthemeBreak,
+        onTap: () {
+          if (document['useruid'].toString() ==
+              Firebase.getUser().uid.toString()) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Theme(
+                          data: DynamicTheme.darkthemeEnabled
+                              ? DynamicTheme.darktheme
+                              : DynamicTheme.lightheme,
+                          child: Scaffold(
+                            appBar: AppBar(
+                              title: Text(document['username']),
+                              centerTitle: true,
+                            ),
+                            body: Profile(),
+                          ),
+                        )));
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ContactProfile(document)));
+          }
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              CircleAvatar(
+                radius: MediaQuery.of(context).size.width / 14,
+                backgroundImage: CachedNetworkImageProvider(
+                    document['userimageurl'].toString()),
+>>>>>>> parent of 0de1103... 0.0.3 beta
               ),
             ),
           ),
