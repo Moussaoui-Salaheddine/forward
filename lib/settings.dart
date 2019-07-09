@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends StatefulWidget {
   @override
@@ -34,6 +35,7 @@ class _SettingsState extends State<Settings> {
                       onChanged: (value) {
                         setState(() {
                           DynamicTheme.darkthemeEnabled = value;
+                          _save(value);
                         });
                       },
                     ),
@@ -43,5 +45,11 @@ class _SettingsState extends State<Settings> {
             ]))),
       ),
     );
+  }
+
+  _save(value) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'darktheme';
+    prefs.setBool(key, value);
   }
 }

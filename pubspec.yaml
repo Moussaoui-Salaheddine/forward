@@ -20,6 +20,7 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   cached_network_image:
+  shared_preferences:
   flutter:
     sdk: flutter
 

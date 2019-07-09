@@ -2,14 +2,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:forward/auth/login.dart';
+import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:forward/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-main() {
+main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
     statusBarColor: Colors.transparent,
   ));
+  await _read();
   runApp(Forward());
+}
+
+_read() async {
+  final prefs = await SharedPreferences.getInstance();
+  final key = 'darktheme';
+  DynamicTheme.darkthemeEnabled = prefs.getBool(key) ?? false;
 }
 
 class Forward extends StatefulWidget {
