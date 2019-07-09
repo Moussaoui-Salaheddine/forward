@@ -10,15 +10,24 @@ import 'package:forward/settings.dart';
 import 'package:forward/tabbar/tabbar.dart';
 
 class Home extends StatefulWidget {
+  static int _currenttabindex = 1;
+  static int getCurrentTabIndex() {
+    return _currenttabindex;
+  }
+
+  static void setCurrentTabIndex(int newvalue) {
+     _currenttabindex = newvalue;
+  }
+
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
-  int _index = 1;
+  static int _currenttabindex = 1;
   _handleTap(int newIndex) {
     setState(() {
-      _index = newIndex;
+      _currenttabindex = newIndex;
     });
   }
 
@@ -52,7 +61,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
               )
             ],
           ),
-          bottomNavigationBar: FancyTabBar((int nb) {
+          bottomNavigationBar: FancyTabBar((nb) {
             if (nb == 0) {
               _handleTap(0);
             } else if (nb == 1) {
@@ -80,9 +89,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   }
 
   _handlePage(DocumentSnapshot document) {
-    if (_index == 0) {
+    if (_currenttabindex == 0) {
       return Messages();
-    } else if (_index == 1) {
+    } else if (_currenttabindex == 1) {
       return Contacts(document);
     } else {
       return Profile();

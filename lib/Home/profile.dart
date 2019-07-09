@@ -77,24 +77,6 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Container(
-                    width: MediaQuery.of(context).size.width / 2,
-                    height: MediaQuery.of(context).size.width / 8,
-                    child: RaisedGradientButton(
-                      child: Text(
-                        'logout',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Montserrat Medium'),
-                      ),
-                      gradient: LinearGradient(
-                        colors: <Color>[
-                          Color.fromRGBO(102, 140, 255, 1.0),
-                          Color.fromRGBO(110, 62, 220, 1.0)
-                        ],
-                      ),
-                      onPressed: confirmLogout,
-                    )),
-                Container(
                   width: MediaQuery.of(context).size.width / 6,
                   height: MediaQuery.of(context).size.width / 8,
                   child: RaisedButton(
@@ -133,18 +115,6 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Future<void> logout() async {
-    await Firestore.instance.runTransaction((transaction) async {
-      await transaction.update(
-          Firestore.instance
-              .collection("users")
-              .document(Firebase.getUser().uid),
-          {"userisactive": false});
-    });
-    await FirebaseAuth.instance.signOut();
-    Firebase.setUser(null);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
-  }
 
   Future<void> updatebio() async {
     if (_changebiokey.currentState.validate()) {
@@ -160,28 +130,6 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  Future<Widget> confirmLogout() async {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("logout"),
-            content: Text('do you really want to logout?'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("logout"),
-                onPressed: logout,
-              ),
-              FlatButton(
-                child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
-  }
 
   Future<Widget> changeBioInput() async {
     return showDialog(

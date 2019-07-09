@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
+import 'package:forward/home.dart';
 import 'package:forward/tabbar/tabbaritem.dart';
 import 'package:vector_math/vector_math.dart' as vector;
 
@@ -8,11 +9,13 @@ class FancyTabBar extends StatefulWidget {
 
   final Function callbackFunction;
   @override
-  _FancyTabBarState createState() => _FancyTabBarState();
+  _FancyTabBarState createState() => _FancyTabBarState(callbackFunction);
 }
 
 class _FancyTabBarState extends State<FancyTabBar>
     with TickerProviderStateMixin {
+  _FancyTabBarState(this.callbackFunction);
+  final Function callbackFunction;
   AnimationController _animationController;
   Tween<double> _positionTween;
   Animation<double> _positionAnimation;
@@ -25,7 +28,7 @@ class _FancyTabBarState extends State<FancyTabBar>
   IconData nextIcon = Icons.people;
   IconData activeIcon = Icons.people;
 
-  int currentSelected = 1;
+  int currentSelected = Home.getCurrentTabIndex();
 
   @override
   void initState() {
