@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:forward/auth/login.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:forward/widgets/coloredactiveindicator.dart';
+import 'package:forward/widgets/gradientraisedbutton.dart';
 
 class Profile extends StatefulWidget {
   @override
