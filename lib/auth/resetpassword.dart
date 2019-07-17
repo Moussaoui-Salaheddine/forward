@@ -1,17 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/widgets/gradientraisedbutton.dart';
 import 'login.dart';
 
-class Signup extends StatefulWidget {
+class ResetPassword extends StatefulWidget {
   @override
-  _SignupState createState() => _SignupState();
+  _ResetPasswordState createState() => _ResetPasswordState();
 }
 
-class _SignupState extends State<Signup> {
-  String _email, _password, _username;
+class _ResetPasswordState extends State<ResetPassword> {
+  String _email;
   final GlobalKey<FormState> _signupkey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -20,7 +19,7 @@ class _SignupState extends State<Signup> {
       child: Container(
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/asset2.png'), fit: BoxFit.cover)),
+                image: AssetImage('assets/asset3.png'), fit: BoxFit.cover)),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -33,7 +32,7 @@ class _SignupState extends State<Signup> {
               children: <Widget>[
                 Container(
                   margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height / 2.3),
+                      top: MediaQuery.of(context).size.height / 1.8),
                   child: Center(
                     child: Form(
                       key: _signupkey,
@@ -59,56 +58,12 @@ class _SignupState extends State<Signup> {
                           Padding(
                               padding: EdgeInsets.only(
                                   top:
-                                      MediaQuery.of(context).size.height / 45)),
-                          Container(
-                            width: MediaQuery.of(context).size.width / 1.2,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  prefixIcon: Icon(Icons.lock),
-                                  hintText: 'password'),
-                              obscureText: true,
-                              validator: (input) {
-                                if (input.length < 6) {
-                                  return 'password is less than 6';
-                                }
-                              },
-                              onSaved: (input) {
-                                _password = input;
-                              },
-                            ),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  top:
-                                      MediaQuery.of(context).size.height / 45)),
-                          Container(
-                            width: MediaQuery.of(context).size.width / 1.2,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  prefixIcon: Icon(Icons.person),
-                                  hintText: 'username'),
-                              obscureText: true,
-                              validator: (input) {
-                                if (input.length == 0 || input.length > 9) {
-                                  return 'username is between 1 and 9 caracters';
-                                }
-                              },
-                              onSaved: (input) {
-                                _username = input;
-                              },
-                            ),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  top:
                                       MediaQuery.of(context).size.height / 20)),
                           Container(
-                            width: MediaQuery.of(context).size.width / 3,
+                            width: MediaQuery.of(context).size.width / 2.5,
                             child: RaisedGradientButton(
                               child: Text(
-                                'signup',
+                                'reset password',
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontFamily: 'Montserrat Medium'),
@@ -119,7 +74,7 @@ class _SignupState extends State<Signup> {
                                   Color.fromRGBO(110, 62, 220, 1.0)
                                 ],
                               ),
-                              onPressed: signup,
+                              onPressed: reset,
                             ),
                           ),
                         ],
@@ -135,7 +90,7 @@ class _SignupState extends State<Signup> {
     );
   }
 
-  Future<void> signup() async {
+  Future<void> reset() async {
     if (_signupkey.currentState.validate()) {
       _signupkey.currentState.save();
       showDialog(
@@ -157,24 +112,8 @@ class _SignupState extends State<Signup> {
             );
           });
       await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: _email, password: _password)
-          .then((fireBaseUser) {
-        Firestore.instance.runTransaction((transaction) async {
-          await transaction.set(
-              Firestore.instance.collection("users").document(fireBaseUser.uid),
-              {
-                "username": this._username,
-                "usermail": this._email,
-                "userpassword": this._password,
-                "userbio": "new user default bio",
-                "userimageurl":
-                    "https://firebasestorage.googleapis.com/v0/b/forward-dev.appspot.com/o/avatar.png?alt=media&token=a32b5fb0-2ec2-4918-9ee7-b438d3c18fd4",
-                "userisactive": true,
-                "useruid": fireBaseUser.uid.toString()
-              });
-          //FirebaseAuth.instance.sendSignInWithEmailLink();
-        });
-      }).catchError((e) {
+          .sendPasswordResetEmail(email: _email)
+          .catchError((e) {
         showDialog(
             context: context,
             builder: (context) {

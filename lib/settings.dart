@@ -48,23 +48,22 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
               Container(
-                    width: MediaQuery.of(context).size.width / 2,
-                    height: MediaQuery.of(context).size.width / 8,
-                    child: RaisedGradientButton(
-                      child: Text(
-                        'Log Out',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Montserrat Medium'),
-                      ),
-                      gradient: LinearGradient(
-                        colors: <Color>[
-                          Color.fromRGBO(102, 140, 255, 1.0),
-                          Color.fromRGBO(110, 62, 220, 1.0)
-                        ],
-                      ),
-                      onPressed: confirmLogout,
-                    )),
+                  width: MediaQuery.of(context).size.width / 2,
+                  height: MediaQuery.of(context).size.width / 8,
+                  child: RaisedGradientButton(
+                    child: Text(
+                      'Log Out',
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: 'Montserrat Medium'),
+                    ),
+                    gradient: LinearGradient(
+                      colors: <Color>[
+                        Color.fromRGBO(102, 140, 255, 1.0),
+                        Color.fromRGBO(110, 62, 220, 1.0)
+                      ],
+                    ),
+                    onPressed: confirmLogout,
+                  )),
             ]))),
       ),
     );
@@ -80,21 +79,26 @@ class _SettingsState extends State<Settings> {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text("logout"),
-            content: Text('do you really want to logout?'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("logout"),
-                onPressed: logout,
-              ),
-              FlatButton(
-                child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+          return Theme(
+            data: DynamicTheme.darkthemeEnabled
+                ? DynamicTheme.darktheme
+                : DynamicTheme.lightheme,
+            child: AlertDialog(
+              title: Text("logout"),
+              content: Text('do you really want to logout?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("logout"),
+                  onPressed: logout,
+                ),
+                FlatButton(
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
           );
         });
   }

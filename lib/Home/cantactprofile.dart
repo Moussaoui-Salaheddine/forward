@@ -8,18 +8,16 @@ import 'package:forward/widgets/gradientraisedbutton.dart';
 
 class ContactProfile extends StatefulWidget {
   final DocumentSnapshot document;
-  final DocumentSnapshot userdocument;
-  ContactProfile(this.document, this.userdocument);
+  ContactProfile(this.document);
   @override
-  _ContactProfileState createState() => _ContactProfileState(document, userdocument);
+  _ContactProfileState createState() => _ContactProfileState(document);
 }
 
 class _ContactProfileState extends State<ContactProfile>
     with AutomaticKeepAliveClientMixin {
   DocumentSnapshot document;
-  DocumentSnapshot userdocument;
   String _newMessage;
-  _ContactProfileState(this.document, this.userdocument);
+  _ContactProfileState(this.document);
   GlobalKey<FormState> _sendMessagekey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -32,20 +30,6 @@ class _ContactProfileState extends State<ContactProfile>
         appBar: AppBar(
           title: Text(document['username']),
           centerTitle: true,
-          actions: <Widget>[
-            PopupMenuButton<Menu>(
-              icon: Icon(Icons.more_horiz),
-              onSelected: (Menu result) {
-                _handleMenuSelection(result);
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
-                    PopupMenuItem<Menu>(
-                      value: Menu.setting1,
-                      child: Text('block'),
-                    )
-                  ],
-            )
-          ],
         ),
         body: Container(
           child: Column(
@@ -141,11 +125,7 @@ class _ContactProfileState extends State<ContactProfile>
               content: Form(
                 key: _sendMessagekey,
                 child: TextFormField(
-                  validator: (input) {
-                    if (input.length == 0) {
-                      return 'message is empty';
-                    }
-                  },
+                  validator: (input) {},
                   onSaved: (input) {
                     setState(() {
                       _newMessage = input;
@@ -207,16 +187,36 @@ class _ContactProfileState extends State<ContactProfile>
       Firestore.instance.runTransaction((transaction) async {
         await transaction.set(
             Firestore.instance.collection("chats").document(
+                Firebase.getUser().uid.toString() +
+                    document['useruid'].toString()),
+            {
+              "chattitle": document['username'].toString(),
+              "chatsender": Firebase.getUser().uid.toString(),
+              "chatimageurl": document['userimageurl'].toString(),
+            });
+        await transaction.set(
+            Firestore.instance
+                .collection("chats")
+                .document(Firebase.getUser().uid.toString() +
+                    document['useruid'].toString())
+                .collection("message")
+                .document(),
+            {
+              "messagetext": _newMessage,
+              "messagetimestamp": DateTime.now(),
+              "messagesender": Firebase.getUser().uid.toString()
+            });
+      });
+
+      Firestore.instance.runTransaction((transaction) async {
+        await transaction.set(
+            Firestore.instance.collection("chats").document(
                 document['useruid'].toString() +
                     Firebase.getUser().uid.toString()),
             {
-              "chattitle": document['username'].toString() + ', ' + userdocument['username'].toString(),
-              "chatparticipants": [
-                document['useruid'].toString(),
-                Firebase.getUser().uid.toString()
-              ],
-              "chatimageurl":
-                  "https://www.neolutionesport.com/wp-content/uploads/2017/03/default-avatar-knives-ninja.png",
+              "chattitle": Firebase.getUsername().toString(),
+              "chatsender": document['useruid'].toString(),
+              "chatimageurl": Firebase.getUserimageurl().toString(),
             });
         await transaction.set(
             Firestore.instance
@@ -226,10 +226,9 @@ class _ContactProfileState extends State<ContactProfile>
                 .collection("message")
                 .document(),
             {
-              "messagereceiverid": document['useruid'].toString(),
-              "messagesenderid": Firebase.getUser().uid.toString(),
               "messagetext": _newMessage,
               "messagetimestamp": DateTime.now(),
+              "messagesender": Firebase.getUser().uid.toString()
             });
       });
       Navigator.pop(context);

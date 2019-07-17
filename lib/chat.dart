@@ -7,16 +7,18 @@ import 'package:forward/firehelp.dart';
 
 class Chat extends StatefulWidget {
   final DocumentSnapshot document;
-  Chat(this.document);
+  final String imagpath;
+  Chat(this.document, this.imagpath);
   @override
   State<StatefulWidget> createState() {
-    return _StateChat(document);
+    return _StateChat(document, imagpath);
   }
 }
 
 class _StateChat extends State<Chat> {
   DocumentSnapshot document;
-  _StateChat(this.document);
+  String imagpath;
+  _StateChat(this.document, this.imagpath);
 
   GlobalKey<FormState> _sendMessagekey = GlobalKey<FormState>();
   TextEditingController _textFieldController = new TextEditingController();
@@ -96,15 +98,13 @@ class _StateChat extends State<Chat> {
                             itemCount: snapshot.data.documents.length,
                             itemBuilder: (BuildContext context, int index) {
                               if (snapshot
-                                      .data.documents[index]['messagesenderid']
+                                      .data.documents[index]['messagesender']
                                       .toString() ==
                                   Firebase.getUser().uid.toString())
-                                return getSentMessageLayout(snapshot
-                                    .data.documents[index]['messagetext']
-                                    .toString());
-                              return getReceivedMessageLayout(snapshot
-                                  .data.documents[index]['messagetext']
-                                  .toString());
+                                return getSentMessageLayout(
+                                    snapshot.data.documents[index]);
+                              return getReceivedMessageLayout(
+                                  snapshot.data.documents[index]);
                             },
                           ),
                         ),
@@ -139,10 +139,26 @@ class _StateChat extends State<Chat> {
               .collection("message")
               .document(),
           {
-            "messagereceiverid": "",
-            "messagesenderid": Firebase.getUser().uid.toString(),
             "messagetext": _textinput,
             "messagetimestamp": DateTime.now(),
+            "messagesender": Firebase.getUser().uid.toString()
+          });
+
+      String s1 = document.documentID.substring(0, 28);
+      String s2 = document.documentID.substring(28, 56);
+      print(s1);
+      String result = s2 + s1;
+
+      await transaction.set(
+          Firestore.instance
+              .collection("chats")
+              .document(result)
+              .collection("message")
+              .document(),
+          {
+            "messagetext": _textinput,
+            "messagetimestamp": DateTime.now(),
+            "messagesender": Firebase.getUser().uid.toString()
           });
     });
 
@@ -152,7 +168,7 @@ class _StateChat extends State<Chat> {
     });
   }
 
-  Widget getSentMessageLayout(String message) {
+  Widget getSentMessageLayout(DocumentSnapshot document) {
     return Theme(
       data: DynamicTheme.darkthemeEnabled
           ? DynamicTheme.darktheme
@@ -162,6 +178,21 @@ class _StateChat extends State<Chat> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(right: 10, top: 15),
+              child: Text(
+                DateTime.fromMillisecondsSinceEpoch(
+                            document['messagetimestamp'].millisecondsSinceEpoch)
+                        .hour
+                        .toString() +
+                    ':' +
+                    DateTime.fromMillisecondsSinceEpoch(
+                            document['messagetimestamp'].millisecondsSinceEpoch)
+                        .minute
+                        .toString(),
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
             Card(
               elevation: 0,
               color: DynamicTheme.darkthemeBreak,
@@ -172,15 +203,20 @@ class _StateChat extends State<Chat> {
                       topRight: Radius.circular(40.0),
                       topLeft: Radius.circular(40.0))),
               margin: EdgeInsets.only(right: 10),
-              child: Container(
-                margin: EdgeInsets.all(10),
-                constraints: BoxConstraints(
-                  maxWidth: 200.0,
-                ),
-                child: Text(
-                  message,
-                  style: TextStyle(
-                      fontFamily: 'Montserrat Medium', color: Colors.white),
+              child: InkWell(
+                onLongPress: () {
+                  confirmDeleteMessage(document.documentID.toString());
+                },
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  constraints: BoxConstraints(
+                    maxWidth: 200.0,
+                  ),
+                  child: Text(
+                    document['messagetext'],
+                    style: TextStyle(
+                        fontFamily: 'Montserrat Medium', color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -190,7 +226,93 @@ class _StateChat extends State<Chat> {
     );
   }
 
-  Widget getReceivedMessageLayout(String message) {
+  Future<Widget> confirmDeleteMessage(String messageID) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Theme(
+            data: DynamicTheme.darkthemeEnabled
+                ? DynamicTheme.darktheme
+                : DynamicTheme.lightheme,
+            child: SimpleDialog(
+              title: Text("Delete Message"),
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(top: 20)),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    InkWell(
+                      onTap: () {
+                        deleteforme(messageID);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text('Delete for myself'),
+                            Icon(Icons.delete)
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        deleteforall(messageID);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text('Delete for everyone'),
+                            Icon(Icons.delete)
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<void> deleteforall(String messageID) async {
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.delete(Firestore.instance
+          .collection("chats")
+          .document(document.documentID)
+          .collection("message")
+          .document(messageID));
+
+      String s1 = document.documentID.substring(0, 28);
+      String s2 = document.documentID.substring(28, 56);
+      print(s1);
+      String result = s2 + s1;
+
+      await transaction.delete(Firestore.instance
+          .collection("chats")
+          .document(result)
+          .collection("message")
+          .document(messageID));
+    });
+    Navigator.of(context).pop();
+  }
+
+  Future<void> deleteforme(String messageID) async {
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.delete(Firestore.instance
+          .collection("chats")
+          .document(document.documentID)
+          .collection("message")
+          .document(messageID));
+    });
+    Navigator.of(context).pop();
+  }
+
+  Widget getReceivedMessageLayout(DocumentSnapshot document) {
     return Theme(
       data: DynamicTheme.darkthemeEnabled
           ? DynamicTheme.darktheme
@@ -202,33 +324,58 @@ class _StateChat extends State<Chat> {
             Container(
               child: CircleAvatar(
                 maxRadius: 18,
-                backgroundImage:
-                    CachedNetworkImageProvider(document['chatimageurl']),
+                backgroundColor: Colors.blue,
+                backgroundImage: CachedNetworkImageProvider(imagpath.toString(),
+                    errorListener: () {}),
               ),
             ),
-            Card(
-              elevation: 0,
-              color: DynamicTheme.darkthemeEnabled
-                  ? DynamicTheme.darkthemeSecondary
-                  : Colors.grey[350],
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(20.0),
-                      topRight: Radius.circular(20.0),
-                      topLeft: Radius.circular(20.0))),
-              margin: EdgeInsets.only(left: 10),
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: 200.0,
+            Column(
+              children: <Widget>[
+                Card(
+                  elevation: 0,
+                  color: DynamicTheme.darkthemeEnabled
+                      ? DynamicTheme.darkthemeSecondary
+                      : Colors.grey[350],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(0),
+                          bottomRight: Radius.circular(20.0),
+                          topRight: Radius.circular(20.0),
+                          topLeft: Radius.circular(20.0))),
+                  margin: EdgeInsets.only(left: 10),
+                  child: InkWell(
+                    onLongPress: () {
+                      confirmDeleteMessage(document.documentID.toString());
+                    },
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: 200.0,
+                      ),
+                      margin: EdgeInsets.all(10),
+                      child: Text(
+                        document['messagetext'].toString(),
+                        style: TextStyle(fontFamily: 'Montserrat Medium'),
+                      ),
+                    ),
+                  ),
                 ),
-                margin: EdgeInsets.all(10),
-                child: Text(
-                  message,
-                  style: TextStyle(fontFamily: 'Montserrat Medium'),
-                ),
-              ),
+              ],
             ),
+            Container(
+              margin: EdgeInsets.only(left: 10, top: 15),
+              child: Text(
+                DateTime.fromMillisecondsSinceEpoch(
+                            document['messagetimestamp'].millisecondsSinceEpoch)
+                        .hour
+                        .toString() +
+                    ':' +
+                    DateTime.fromMillisecondsSinceEpoch(
+                            document['messagetimestamp'].millisecondsSinceEpoch)
+                        .minute
+                        .toString(),
+                style: TextStyle(fontSize: 18),
+              ),
+            )
           ],
         ),
       ),

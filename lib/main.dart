@@ -31,6 +31,7 @@ class _ForwardState extends State<Forward> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      color: Colors.white,
       home: UserStateHandler(),
     );
   }

@@ -1,12 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:forward/auth/login.dart';
+import 'package:forward/customise.dart';
 import 'package:forward/dynamictheme.dart';
 import 'package:forward/firehelp.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:forward/widgets/coloredactiveindicator.dart';
-import 'package:forward/widgets/gradientraisedbutton.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -86,7 +84,10 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                             ? Colors.white
                             : Colors.black45),
                     elevation: 0,
-                    onPressed: changeBioInput,
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Customise()));
+                    },
                   ),
                 )
               ],
@@ -108,13 +109,15 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
         builder: (context, snapshot) {
           if (!snapshot.hasData)
             return Center(child: Text('Loading...'));
-          else
+          else {
+            Firebase.setUsername(snapshot.data['username'].toString());
+            Firebase.setUserimageurl(snapshot.data['userimageurl'].toString());
             return _buildProfile(context, snapshot.data);
+          }
         },
       ),
     );
   }
-
 
   Future<void> updatebio() async {
     if (_changebiokey.currentState.validate()) {
@@ -129,7 +132,6 @@ class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
       Navigator.pop(context);
     }
   }
-
 
   Future<Widget> changeBioInput() async {
     return showDialog(

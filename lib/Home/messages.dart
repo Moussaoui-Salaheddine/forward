@@ -12,13 +12,19 @@ class Messages extends StatefulWidget {
 
 class _MessagesState extends State<Messages>
     with AutomaticKeepAliveClientMixin {
-  Widget _buildChatLayout(BuildContext context, DocumentSnapshot document) {
+  Widget _buildChatLayout(
+      BuildContext context, DocumentSnapshot document, String imagepath) {
     return Container(
         child: InkWell(
             splashColor: DynamicTheme.darkthemeBreak,
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Chat(document)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Chat(document, imagepath)));
+            },
+            onLongPress: () {
+              confirmdeleteconv(document);
             },
             child: Row(
               children: <Widget>[
@@ -100,32 +106,30 @@ class _MessagesState extends State<Messages>
                           return Center(child: Text('Loading...'));
                         } else {
                           return Text(
-                              DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch - snapshot.data.documents[0].data["messagetimestamp"].millisecondsSinceEpoch).hour > 1
+                              DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch - snapshot.data.documents[0].data["messagetimestamp"].millisecondsSinceEpoch).hour > 24
                                   ? DateTime.fromMillisecondsSinceEpoch(
-                                              DateTime.now()
-                                                      .millisecondsSinceEpoch -
+                                              DateTime.now().millisecondsSinceEpoch -
                                                   snapshot
                                                       .data
                                                       .documents[0]
                                                       .data["messagetimestamp"]
                                                       .millisecondsSinceEpoch)
-                                          .hour
+                                          .day
                                           .toString() +
-                                      " h ago"
-                                  : (DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch - snapshot.data.documents[0].data["messagetimestamp"].millisecondsSinceEpoch)
-                                              .minute >
-                                          1)
-                                      ? DateTime.fromMillisecondsSinceEpoch(DateTime.now()
-                                                      .millisecondsSinceEpoch -
+                                      " day ago"
+                                  : DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch - snapshot.data.documents[0].data["messagetimestamp"].millisecondsSinceEpoch).hour > 1
+                                      ? DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch -
                                                   snapshot
                                                       .data
                                                       .documents[0]
                                                       .data["messagetimestamp"]
                                                       .millisecondsSinceEpoch)
-                                              .minute
+                                              .hour
                                               .toString() +
-                                          " mins ago"
-                                      : "Just now",
+                                          " h ago"
+                                      : (DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch - snapshot.data.documents[0].data["messagetimestamp"].millisecondsSinceEpoch).minute > 1)
+                                          ? DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch - snapshot.data.documents[0].data["messagetimestamp"].millisecondsSinceEpoch).minute.toString() + " mins ago"
+                                          : "Just now",
                               style: TextStyle(fontSize: 12));
                         }
                       },
@@ -140,26 +144,89 @@ class _MessagesState extends State<Messages>
         child: StreamBuilder<QuerySnapshot>(
             stream: Firestore.instance
                 .collection("chats")
-                .where('chatparticipants',
-                    arrayContains: Firebase.getUser().uid.toString())
+                .where('chatsender',
+                    isEqualTo: Firebase.getUser().uid.toString())
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: Text("no chats"));
+              if (!snapshot.hasData || snapshot.data.documents.length == 0) {
+                return Container(
+                  child: Center(child: Text('no chat')),
+                );
               } else {
                 return ListView.builder(
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, position) {
                     return _buildChatLayout(
-                      context,
-                      snapshot.data.documents[position],
-                    );
+                        context,
+                        snapshot.data.documents[position],
+                        snapshot.data.documents[position]['chatimageurl']
+                            .toString());
                   },
                 );
               }
             }));
   }
 
+  Future<Widget> confirmdeleteconv(DocumentSnapshot document) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Theme(
+            data: DynamicTheme.darkthemeEnabled
+                ? DynamicTheme.darktheme
+                : DynamicTheme.lightheme,
+            child: AlertDialog(
+              title: Text("Delete Conversation"),
+              content: Text('do you really want to delete this conversation?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                  onPressed: () {
+                    deleteconv(document);
+                  },
+                ),
+                FlatButton(
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<void> deleteconv(DocumentSnapshot document) async {
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.delete(Firestore.instance
+          .collection("chats")
+          .document(document.documentID)
+          .collection("message")
+          .document());
+      await transaction.delete(
+          Firestore.instance.collection("chats").document(document.documentID));
+
+      String s1 = document.documentID.substring(0, 28);
+      String s2 = document.documentID.substring(28, 56);
+      print(s1);
+      String result = s2 + s1;
+
+      await transaction.delete(Firestore.instance
+          .collection("chats")
+          .document(result)
+          .collection("message")
+          .document());
+
+      await transaction
+          .delete(Firestore.instance.collection("chats").document(result));
+    });
+    Navigator.of(context).pop();
+  }
+
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

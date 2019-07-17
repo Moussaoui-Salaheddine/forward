@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:forward/dynamictheme.dart';
-import 'package:forward/home.dart';
 import 'package:forward/tabbar/tabbaritem.dart';
 import 'package:vector_math/vector_math.dart' as vector;
 
@@ -28,7 +27,7 @@ class _FancyTabBarState extends State<FancyTabBar>
   IconData nextIcon = Icons.people;
   IconData activeIcon = Icons.people;
 
-  int currentSelected = Home.getCurrentTabIndex();
+  int currentSelected = 1;
 
   @override
   void initState() {
@@ -90,7 +89,7 @@ class _FancyTabBarState extends State<FancyTabBar>
                         ? DynamicTheme.darkthemeSecondary
                         : Colors.black38,
                     offset: Offset(0, -1),
-                    blurRadius: DynamicTheme.darkthemeEnabled ? 0 : 8)
+                    blurRadius: DynamicTheme.darkthemeEnabled ? 0 : 2)
               ]),
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -111,7 +110,7 @@ class _FancyTabBarState extends State<FancyTabBar>
               TabItem(
                   selected: currentSelected == 1,
                   iconData: Icons.people,
-                  title: "CONTACTS",
+                  title: "USERS",
                   callbackFunction: () {
                     setState(() {
                       nextIcon = Icons.people;
@@ -170,7 +169,7 @@ class _FancyTabBarState extends State<FancyTabBar>
                                             blurRadius:
                                                 DynamicTheme.darkthemeEnabled
                                                     ? 0
-                                                    : 8)
+                                                    : 2)
                                       ])),
                             ),
                           )),

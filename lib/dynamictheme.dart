@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DynamicTheme {
   static Color darkthemePrimary = Color.fromRGBO(20, 29, 38, 1.0);
   static Color darkthemeSecondary = Color.fromRGBO(36, 52, 71, 1.0);
-  static Color darkthemeAccent = Color.fromRGBO(150, 177, 209, 1.0);
+  static Color darkthemeAccent = Color.fromRGBO(29, 161, 242, 1.0);
   static Color darkthemeBreak = Color.fromRGBO(29, 161, 242, 1.0);
   static bool darkthemeEnabled = false;
   static final ThemeData lightheme = ThemeData(
